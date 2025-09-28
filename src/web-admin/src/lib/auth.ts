@@ -15,9 +15,16 @@ export interface AuthToken {
 
 export function verifyToken(token: string): AuthToken | null {
   try {
+    // Try main portal JWT secret first
     return jwt.verify(token, JWT_SECRET) as AuthToken;
   } catch (error) {
-    return null;
+    try {
+      // Try local TeamD JWT secret
+      const localSecret = 'teamd-local-secret';
+      return jwt.verify(token, localSecret) as AuthToken;
+    } catch (localError) {
+      return null;
+    }
   }
 }
 

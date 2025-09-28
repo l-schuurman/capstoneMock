@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { getCurrentUser, clearStoredAuth, checkMainPortalAuth, AuthUser } from '../lib/auth';
+import LocalLoginForm from './LocalLoginForm';
 
 interface ProtectedTeamPortalProps {
   children: React.ReactNode;
 }
 
-function UnauthorizedAccess() {
+function UnauthorizedAccess({ onLocalLogin }: { onLocalLogin: (user: AuthUser, token: string) => void }) {
+  const [showLocalLogin, setShowLocalLogin] = useState(false);
+
   return (
     <div style={{
       display: 'flex',
@@ -17,136 +20,210 @@ function UnauthorizedAccess() {
       minHeight: '100vh',
       padding: '20px',
       backgroundColor: '#f8f9fa',
-      textAlign: 'center'
+      textAlign: 'center',
+      gap: '20px'
     }}>
-      <div style={{
-        backgroundColor: '#fff3cd',
-        border: '1px solid #ffeaa7',
-        borderRadius: '8px',
-        padding: '30px',
-        maxWidth: '600px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-      }}>
-        <h1 style={{
-          color: '#856404',
-          marginBottom: '20px',
-          fontSize: '1.8rem'
-        }}>
-          🔒 Access Restricted
-        </h1>
-        <p style={{
-          color: '#856404',
-          marginBottom: '20px',
-          fontSize: '1.1rem',
-          lineHeight: '1.5'
-        }}>
-          This Team D portal requires authentication through the main admin portal.
-        </p>
+      {/* Local Login Form */}
+      {showLocalLogin ? (
+        <LocalLoginForm onLoginSuccess={onLocalLogin} />
+      ) : (
         <div style={{
-          backgroundColor: '#e9ecef',
-          padding: '15px',
-          borderRadius: '4px',
-          marginBottom: '20px'
+          backgroundColor: '#fff3cd',
+          border: '1px solid #ffeaa7',
+          borderRadius: '8px',
+          padding: '30px',
+          maxWidth: '600px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
         }}>
-          <p style={{
-            margin: '0 0 10px 0',
-            color: '#495057',
-            fontSize: '0.9rem'
+          <h1 style={{
+            color: '#856404',
+            marginBottom: '20px',
+            fontSize: '1.8rem'
           }}>
-            Please log in through the main portal:
-          </p>
-          <a
-            href="http://localhost:4001"
-            style={{
-              color: '#007bff',
-              textDecoration: 'none',
-              fontWeight: 'bold',
-              fontSize: '1rem',
-              display: 'block',
-              marginBottom: '10px'
-            }}
-          >
-            http://localhost:4001
-          </a>
+            🔒 Authentication Required
+          </h1>
           <p style={{
-            margin: 0,
-            color: '#6c757d',
-            fontSize: '0.8rem'
+            color: '#856404',
+            marginBottom: '20px',
+            fontSize: '1.1rem',
+            lineHeight: '1.5'
           }}>
-            After logging in, use the "Team D Portal" button.
+            Choose your authentication method:
           </p>
-        </div>
 
-        <div style={{
-          backgroundColor: '#d4edda',
-          border: '1px solid #c3e6cb',
-          padding: '15px',
-          borderRadius: '4px',
-          marginTop: '20px'
-        }}>
-          <p style={{
-            margin: '0 0 10px 0',
-            color: '#155724',
-            fontSize: '0.9rem',
-            fontWeight: 'bold'
+          {/* Local Development Option */}
+          <div style={{
+            backgroundColor: '#d1ecf1',
+            border: '1px solid #bee5eb',
+            padding: '20px',
+            borderRadius: '4px',
+            marginBottom: '20px'
           }}>
-            Debug Information:
-          </p>
-          <button
-            onClick={async () => {
-              console.log('Manual auth check triggered');
-              const localUser = getCurrentUser();
-              console.log('Local user:', localUser);
+            <h3 style={{
+              color: '#0c5460',
+              margin: '0 0 10px 0',
+              fontSize: '1.1rem'
+            }}>
+              🚀 Local Development
+            </h3>
+            <p style={{
+              color: '#0c5460',
+              margin: '0 0 15px 0',
+              fontSize: '0.9rem'
+            }}>
+              Quick login for TeamD local development (no main portal required)
+            </p>
+            <button
+              onClick={() => setShowLocalLogin(true)}
+              style={{
+                backgroundColor: '#17a2b8',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: 'bold'
+              }}
+            >
+              Use Local Login
+            </button>
+          </div>
 
-              if (localUser) {
-                alert('Local session found: ' + localUser.email);
-                window.location.reload();
-                return;
-              }
-
-              // Check main portal
-              console.log('Checking main portal...');
-              const mainUser = await checkMainPortalAuth();
-              if (mainUser) {
-                alert('Found session from main portal: ' + mainUser.email);
-                window.location.reload();
-              } else {
-                alert('No valid session found. Please log in through the main portal.');
-              }
-            }}
-            style={{
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              padding: '8px 15px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              marginRight: '10px'
-            }}
-          >
-            Check Session
-          </button>
-          <button
-            onClick={() => {
-              sessionStorage.clear();
-              console.log('Session storage cleared');
-              alert('Session storage cleared. Please log in again.');
-            }}
-            style={{
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              padding: '8px 15px',
-              borderRadius: '4px',
-              cursor: 'pointer',
+          {/* Main Portal Option */}
+          <div style={{
+            backgroundColor: '#e9ecef',
+            padding: '20px',
+            borderRadius: '4px',
+            marginBottom: '20px'
+          }}>
+            <h3 style={{
+              color: '#495057',
+              margin: '0 0 10px 0',
+              fontSize: '1.1rem'
+            }}>
+              🌐 Main Portal
+            </h3>
+            <p style={{
+              margin: '0 0 15px 0',
+              color: '#495057',
+              fontSize: '0.9rem'
+            }}>
+              Log in through the main admin portal for full access:
+            </p>
+            <a
+              href="http://localhost:4001"
+              style={{
+                display: 'inline-block',
+                backgroundColor: '#007bff',
+                color: 'white',
+                textDecoration: 'none',
+                padding: '10px 20px',
+                borderRadius: '4px',
+                fontSize: '0.9rem',
+                fontWeight: 'bold'
+              }}
+            >
+              Go to Main Portal
+            </a>
+            <p style={{
+              margin: '10px 0 0 0',
+              color: '#6c757d',
               fontSize: '0.8rem'
-            }}
-          >
-            Clear Session
-          </button>
+            }}>
+              After logging in, use the "Team D Portal" button.
+            </p>
+          </div>
+
+          {/* Debug Section */}
+          <div style={{
+            backgroundColor: '#d4edda',
+            border: '1px solid #c3e6cb',
+            padding: '15px',
+            borderRadius: '4px'
+          }}>
+            <p style={{
+              margin: '0 0 10px 0',
+              color: '#155724',
+              fontSize: '0.9rem',
+              fontWeight: 'bold'
+            }}>
+              Debug Tools:
+            </p>
+            <button
+              onClick={async () => {
+                console.log('Manual auth check triggered');
+                const localUser = getCurrentUser();
+                console.log('Local user:', localUser);
+
+                if (localUser) {
+                  alert('Local session found: ' + localUser.email);
+                  window.location.reload();
+                  return;
+                }
+
+                // Check main portal
+                console.log('Checking main portal...');
+                const mainUser = await checkMainPortalAuth();
+                if (mainUser) {
+                  alert('Found session from main portal: ' + mainUser.email);
+                  window.location.reload();
+                } else {
+                  alert('No valid session found.');
+                }
+              }}
+              style={{
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                padding: '8px 15px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                marginRight: '10px'
+              }}
+            >
+              Check Session
+            </button>
+            <button
+              onClick={() => {
+                sessionStorage.clear();
+                console.log('Session storage cleared');
+                alert('Session storage cleared. Please log in again.');
+              }}
+              style={{
+                backgroundColor: '#dc3545',
+                color: 'white',
+                border: 'none',
+                padding: '8px 15px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.8rem'
+              }}
+            >
+              Clear Session
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Back Button for Local Login */}
+      {showLocalLogin && (
+        <button
+          onClick={() => setShowLocalLogin(false)}
+          style={{
+            backgroundColor: '#6c757d',
+            color: 'white',
+            border: 'none',
+            padding: '8px 15px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '0.9rem'
+          }}
+        >
+          ← Back to Auth Options
+        </button>
+      )}
     </div>
   );
 }
@@ -212,8 +289,13 @@ export default function ProtectedTeamPortal({ children }: ProtectedTeamPortalPro
     );
   }
 
+  const handleLocalLogin = (authUser: AuthUser, token: string) => {
+    console.log('Local login successful:', authUser);
+    setUser(authUser);
+  };
+
   if (!user) {
-    return <UnauthorizedAccess />;
+    return <UnauthorizedAccess onLocalLogin={handleLocalLogin} />;
   }
 
   return (
@@ -227,13 +309,31 @@ export default function ProtectedTeamPortal({ children }: ProtectedTeamPortalPro
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <span style={{ color: '#155724', fontSize: '0.9rem' }}>
-          ✅ Authenticated as: <strong>{user.email}</strong>
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <span style={{ color: '#155724', fontSize: '0.9rem' }}>
+            ✅ Authenticated as: <strong>{user.email}</strong>
+          </span>
+          <span style={{
+            color: '#0c5460',
+            fontSize: '0.8rem',
+            backgroundColor: '#d1ecf1',
+            padding: '2px 8px',
+            borderRadius: '3px',
+            border: '1px solid #bee5eb'
+          }}>
+            {sessionStorage.getItem('teamd-auth-source') === 'local' ? '🚀 Local Dev' : '🌐 Main Portal'}
+          </span>
+        </div>
         <button
           onClick={() => {
+            const isLocal = sessionStorage.getItem('teamd-auth-source') === 'local';
             clearStoredAuth();
-            window.location.href = 'http://localhost:4001';
+
+            if (isLocal) {
+              window.location.reload();
+            } else {
+              window.location.href = 'http://localhost:4001';
+            }
           }}
           style={{
             backgroundColor: '#dc3545',
@@ -245,7 +345,7 @@ export default function ProtectedTeamPortal({ children }: ProtectedTeamPortalPro
             cursor: 'pointer'
           }}
         >
-          Return to Main Portal
+          {sessionStorage.getItem('teamd-auth-source') === 'local' ? 'Logout' : 'Return to Main Portal'}
         </button>
       </div>
       {children}
