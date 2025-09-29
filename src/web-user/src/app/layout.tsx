@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
+import { AuthProvider } from '../contexts/AuthContext'
 
 export const metadata: Metadata = {
-  title: 'Team D Web User',
-  description: 'Team D User Portal',
+  title: 'Team D User Portal',
+  description: 'Team D User Portal for Large Event Services',
 }
 
 export default function RootLayout({
@@ -12,15 +13,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <div style={{
-          fontFamily: 'Arial, sans-serif',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '20px'
-        }}>
-          {children}
-        </div>
+      <body style={{ margin: 0, padding: 0, backgroundColor: '#f9fafb' }}>
+        <AuthProvider>
+          <div style={{
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            minHeight: '100vh'
+          }}>
+            {children}
+          </div>
+        </AuthProvider>
       </body>
     </html>
   )

@@ -1,31 +1,60 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { serialize, parse } from 'cookie';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export interface AuthUser {
-  id: number;
   email: string;
+  id?: number; // Optional to maintain compatibility with main portal tokens
 }
 
-export interface AuthToken {
-  user: AuthUser;
-  exp: number;
-  iat: number;
+export function generateToken(user: AuthUser): string {
+  return jwt.sign({ user }, JWT_SECRET, { expiresIn: '24h' });
 }
 
-export function verifyToken(token: string): AuthToken | null {
+export function verifyToken(token: string): AuthUser | null {
   try {
-    // Try main portal JWT secret first
-    return jwt.verify(token, JWT_SECRET) as AuthToken;
+    const decoded = jwt.verify(token, JWT_SECRET) as { user: AuthUser };
+    return decoded.user;
   } catch (error) {
-    try {
-      // Try local TeamD JWT secret
-      const localSecret = 'teamd-local-secret';
-      return jwt.verify(token, localSecret) as AuthToken;
-    } catch (localError) {
-      return null;
-    }
+    return null;
   }
+}
+
+export function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10);
+}
+
+export function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword);
+}
+
+export function createAuthCookie(token: string): string {
+  return serialize('auth-token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 60 * 60 * 24, // 24 hours
+    path: '/',
+  });
+}
+
+export function clearAuthCookie(): string {
+  return serialize('auth-token', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 0,
+    path: '/',
+  });
+}
+
+export function getTokenFromCookie(cookieHeader: string | null | undefined): string | null {
+  if (!cookieHeader) return null;
+
+  const cookies = parse(cookieHeader);
+  return cookies['auth-token'] || null;
 }
 
 export function getAuthFromUrl(): AuthUser | null {
@@ -41,9 +70,9 @@ export function getAuthFromUrl(): AuthUser | null {
   const decoded = verifyToken(authToken);
   console.log('Decoded token:', decoded); // Debug log
 
-  if (decoded?.user) {
+  if (decoded) {
     // Store the auth info in sessionStorage for persistence
-    sessionStorage.setItem('teamd-auth-user', JSON.stringify(decoded.user));
+    sessionStorage.setItem('teamd-auth-user', JSON.stringify(decoded));
     sessionStorage.setItem('teamd-auth-token', authToken);
     sessionStorage.setItem('teamd-auth-source', 'main');
     console.log('Stored auth to sessionStorage'); // Debug log
@@ -53,7 +82,7 @@ export function getAuthFromUrl(): AuthUser | null {
     window.history.replaceState({}, '', newUrl);
     console.log('Cleaned URL to:', newUrl); // Debug log
   }
-  return decoded?.user || null;
+  return decoded;
 }
 
 export function getStoredAuth(): AuthUser | null {
@@ -92,6 +121,7 @@ export function clearStoredAuth(): void {
 
   sessionStorage.removeItem('teamd-auth-user');
   sessionStorage.removeItem('teamd-auth-token');
+  sessionStorage.removeItem('teamd-auth-source');
 }
 
 export function getCurrentUser(): AuthUser | null {
@@ -111,7 +141,7 @@ export function getCurrentUser(): AuthUser | null {
 export async function checkMainPortalAuth(): Promise<AuthUser | null> {
   try {
     console.log('Checking main portal auth...');
-    const response = await fetch('http://localhost:4001/api/auth/token', {
+    const response = await fetch('http://localhost:4000/api/auth/token', {
       credentials: 'include',
       headers: {
         'Accept': 'application/json',

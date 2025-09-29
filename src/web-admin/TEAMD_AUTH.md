@@ -6,14 +6,12 @@ This portal supports two authentication methods for maximum development flexibil
 
 **Quick start for local development:**
 
-1. Visit `http://localhost:3024/`
+1. Visit `http://localhost:3014/`
 2. Click "Use Local Login"
 3. Use any of these test accounts:
-   - `teamd@local.dev`
-   - `dev@teamd.local`
-   - `test@teamd.dev`
+   - `teamd@large-event.com`
    - `admin@teamd.local`
-   - `member@teamd.dev`
+   - `member@teamd.local`
 
 **Benefits:**
 - No need to run the main portal (`localhost:4001`)
@@ -25,9 +23,9 @@ This portal supports two authentication methods for maximum development flexibil
 
 **For testing full system integration:**
 
-1. Start main portal: `cd /Users/luke/Dev/MacEngSociety/large-event/apps/web-admin && pnpm dev`
-2. Visit `http://localhost:4001` and login
-3. Click "Team D Portal" button OR visit `http://localhost:4001/teams/teamD/admin/`
+1. Start main portal: `cd /Users/luke/Dev/MacEngSociety/large-event/apps/web-user && pnpm dev`
+2. Visit `http://localhost:4000` and login
+3. Navigate to Team D portal or visit with auth token
 
 **Benefits:**
 - Full integration testing
@@ -46,7 +44,7 @@ pnpm build
 
 # Start with main portal for full integration
 # Terminal 1:
-cd /Users/luke/Dev/MacEngSociety/large-event/apps/web-admin && pnpm dev
+cd /Users/luke/Dev/MacEngSociety/large-event/apps/web-user && pnpm dev
 # Terminal 2:
 pnpm dev
 ```

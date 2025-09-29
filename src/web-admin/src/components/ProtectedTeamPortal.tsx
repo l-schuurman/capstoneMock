@@ -324,29 +324,25 @@ export default function ProtectedTeamPortal({ children }: ProtectedTeamPortalPro
             {sessionStorage.getItem('teamd-auth-source') === 'local' ? '🚀 Local Dev' : '🌐 Main Portal'}
           </span>
         </div>
-        <button
-          onClick={() => {
-            const isLocal = sessionStorage.getItem('teamd-auth-source') === 'local';
-            clearStoredAuth();
-
-            if (isLocal) {
+        {sessionStorage.getItem('teamd-auth-source') === 'local' && (
+          <button
+            onClick={() => {
+              clearStoredAuth();
               window.location.reload();
-            } else {
-              window.location.href = 'http://localhost:4001';
-            }
-          }}
-          style={{
-            backgroundColor: '#dc3545',
-            color: 'white',
-            border: 'none',
-            padding: '5px 10px',
-            borderRadius: '4px',
-            fontSize: '0.8rem',
-            cursor: 'pointer'
-          }}
-        >
-          {sessionStorage.getItem('teamd-auth-source') === 'local' ? 'Logout' : 'Return to Main Portal'}
-        </button>
+            }}
+            style={{
+              backgroundColor: '#dc3545',
+              color: 'white',
+              border: 'none',
+              padding: '5px 10px',
+              borderRadius: '4px',
+              fontSize: '0.8rem',
+              cursor: 'pointer'
+            }}
+          >
+            Logout
+          </button>
+        )}
       </div>
       {children}
     </div>
