@@ -1,60 +1,47 @@
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import { serialize, parse } from 'cookie';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
 export interface AuthUser {
+  id: number;
   email: string;
-  id?: number; // Optional to maintain compatibility with main portal tokens
 }
 
-export function generateToken(user: AuthUser): string {
-  return jwt.sign({ user }, JWT_SECRET, { expiresIn: '24h' });
+export interface AuthToken {
+  user: AuthUser;
+  exp: number;
+  iat: number;
 }
 
-export function verifyToken(token: string): AuthUser | null {
+// Simple JWT decoder for client-side (no verification, just decode)
+// Server should verify the token
+function decodeJWT(token: string): AuthToken | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { user: AuthUser };
-    return decoded.user;
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = JSON.parse(atob(parts[1]));
+    return payload as AuthToken;
   } catch (error) {
+    console.error('Error decoding JWT:', error);
     return null;
   }
 }
 
-export function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 10);
-}
+export function verifyToken(token: string): AuthToken | null {
+  try {
+    const decoded = decodeJWT(token);
 
-export function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword);
-}
+    // Check if token is expired
+    if (decoded && decoded.exp) {
+      const now = Math.floor(Date.now() / 1000);
+      if (decoded.exp < now) {
+        console.log('Token expired');
+        return null;
+      }
+    }
 
-export function createAuthCookie(token: string): string {
-  return serialize('auth-token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 60 * 60 * 24, // 24 hours
-    path: '/',
-  });
-}
-
-export function clearAuthCookie(): string {
-  return serialize('auth-token', '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 0,
-    path: '/',
-  });
-}
-
-export function getTokenFromCookie(cookieHeader: string | null | undefined): string | null {
-  if (!cookieHeader) return null;
-
-  const cookies = parse(cookieHeader);
-  return cookies['auth-token'] || null;
+    return decoded;
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return null;
+  }
 }
 
 export function getAuthFromUrl(): AuthUser | null {
@@ -70,9 +57,9 @@ export function getAuthFromUrl(): AuthUser | null {
   const decoded = verifyToken(authToken);
   console.log('Decoded token:', decoded); // Debug log
 
-  if (decoded) {
+  if (decoded?.user) {
     // Store the auth info in sessionStorage for persistence
-    sessionStorage.setItem('teamd-auth-user', JSON.stringify(decoded));
+    sessionStorage.setItem('teamd-auth-user', JSON.stringify(decoded.user));
     sessionStorage.setItem('teamd-auth-token', authToken);
     sessionStorage.setItem('teamd-auth-source', 'main');
     console.log('Stored auth to sessionStorage'); // Debug log
@@ -82,7 +69,7 @@ export function getAuthFromUrl(): AuthUser | null {
     window.history.replaceState({}, '', newUrl);
     console.log('Cleaned URL to:', newUrl); // Debug log
   }
-  return decoded;
+  return decoded?.user || null;
 }
 
 export function getStoredAuth(): AuthUser | null {
@@ -121,7 +108,6 @@ export function clearStoredAuth(): void {
 
   sessionStorage.removeItem('teamd-auth-user');
   sessionStorage.removeItem('teamd-auth-token');
-  sessionStorage.removeItem('teamd-auth-source');
 }
 
 export function getCurrentUser(): AuthUser | null {

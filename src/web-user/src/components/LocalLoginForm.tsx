@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import { AuthUser } from '../lib/auth';
 
@@ -157,9 +155,9 @@ export default function LocalLoginForm({ onLoginSuccess }: LocalLoginFormProps) 
       }}>
         <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>Valid test accounts:</p>
         <ul style={{ margin: 0, paddingLeft: '20px' }}>
-          <li>teamd@large-event.com</li>
-          <li>admin@teamd.local</li>
-          <li>member@teamd.local</li>
+          <li>user@teamd.local</li>
+          <li>test@teamd.dev</li>
+          <li>demo@teamd.local</li>
         </ul>
       </div>
     </div>

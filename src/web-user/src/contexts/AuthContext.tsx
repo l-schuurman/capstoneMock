@@ -1,5 +1,3 @@
-'use client';
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthUser } from '../lib/auth';
 
@@ -122,7 +120,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       sessionStorage.removeItem('auth-token');
       sessionStorage.removeItem('teamd-auth-source');
+      sessionStorage.removeItem('teamd-auth-user');
+      sessionStorage.removeItem('teamd-auth-token');
       setUser(null);
+      window.location.reload();
     }
   };
 

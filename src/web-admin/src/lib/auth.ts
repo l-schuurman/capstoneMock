@@ -1,7 +1,3 @@
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
 export interface AuthUser {
   id: number;
   email: string;
@@ -13,18 +9,38 @@ export interface AuthToken {
   iat: number;
 }
 
+// Simple JWT decoder for client-side (no verification, just decode)
+// Server should verify the token
+function decodeJWT(token: string): AuthToken | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = JSON.parse(atob(parts[1]));
+    return payload as AuthToken;
+  } catch (error) {
+    console.error('Error decoding JWT:', error);
+    return null;
+  }
+}
+
 export function verifyToken(token: string): AuthToken | null {
   try {
-    // Try main portal JWT secret first
-    return jwt.verify(token, JWT_SECRET) as AuthToken;
-  } catch (error) {
-    try {
-      // Try local TeamD JWT secret
-      const localSecret = 'teamd-local-secret';
-      return jwt.verify(token, localSecret) as AuthToken;
-    } catch (localError) {
-      return null;
+    const decoded = decodeJWT(token);
+
+    // Check if token is expired
+    if (decoded && decoded.exp) {
+      const now = Math.floor(Date.now() / 1000);
+      if (decoded.exp < now) {
+        console.log('Token expired');
+        return null;
+      }
     }
+
+    return decoded;
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return null;
   }
 }
 

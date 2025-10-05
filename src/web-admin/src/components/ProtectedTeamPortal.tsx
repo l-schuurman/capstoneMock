@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { getCurrentUser, clearStoredAuth, checkMainPortalAuth, AuthUser } from '../lib/auth';
 import LocalLoginForm from './LocalLoginForm';
@@ -135,75 +133,6 @@ function UnauthorizedAccess({ onLocalLogin }: { onLocalLogin: (user: AuthUser, t
             </p>
           </div>
 
-          {/* Debug Section */}
-          <div style={{
-            backgroundColor: '#d4edda',
-            border: '1px solid #c3e6cb',
-            padding: '15px',
-            borderRadius: '4px'
-          }}>
-            <p style={{
-              margin: '0 0 10px 0',
-              color: '#155724',
-              fontSize: '0.9rem',
-              fontWeight: 'bold'
-            }}>
-              Debug Tools:
-            </p>
-            <button
-              onClick={async () => {
-                console.log('Manual auth check triggered');
-                const localUser = getCurrentUser();
-                console.log('Local user:', localUser);
-
-                if (localUser) {
-                  alert('Local session found: ' + localUser.email);
-                  window.location.reload();
-                  return;
-                }
-
-                // Check main portal
-                console.log('Checking main portal...');
-                const mainUser = await checkMainPortalAuth();
-                if (mainUser) {
-                  alert('Found session from main portal: ' + mainUser.email);
-                  window.location.reload();
-                } else {
-                  alert('No valid session found.');
-                }
-              }}
-              style={{
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                padding: '8px 15px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                marginRight: '10px'
-              }}
-            >
-              Check Session
-            </button>
-            <button
-              onClick={() => {
-                sessionStorage.clear();
-                console.log('Session storage cleared');
-                alert('Session storage cleared. Please log in again.');
-              }}
-              style={{
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                padding: '8px 15px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '0.8rem'
-              }}
-            >
-              Clear Session
-            </button>
-          </div>
         </div>
       )}
 

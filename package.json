@@ -10,7 +10,7 @@
     "src/mobile",
     "src/shared"
   ],
-  "packageManager": "pnpm@8.15.0",
+  "packageManager": "pnpm@10.18.0",
   "scripts": {
     "dev": "concurrently \"pnpm --filter @teamd/web-admin dev\" \"pnpm --filter @teamd/web-user dev\"",
     "dev:admin": "pnpm --filter @teamd/web-admin dev",
