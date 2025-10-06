@@ -1,49 +1,54 @@
-import express from 'express';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
+import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import cookie from '@fastify/cookie';
 import jwt from 'jsonwebtoken';
 
-const app = express();
+const fastify = Fastify({ logger: true });
 const PORT = 3124;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Middleware
-app.use(cors({
+// Register plugins
+await fastify.register(cors, {
   origin: 'http://localhost:3024',
   credentials: true,
-}));
-app.use(express.json());
-app.use(cookieParser());
+});
+
+await fastify.register(cookie);
 
 // Simple health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+fastify.get('/api/health', async (request, reply) => {
+  reply.send({ status: 'ok' });
 });
 
 // Local login (for testing without main portal)
-app.post('/api/auth/local-login', (req, res) => {
+fastify.post('/api/auth/local-login', async (request, reply) => {
   try {
-    const { email } = req.body;
+    const { email } = request.body as { email: string };
 
     if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
+      return reply.code(400).send({ error: 'Email is required' });
     }
 
     const user = { id: 1, email };
     const localSecret = 'teamd-local-secret';
     const token = jwt.sign({ user }, localSecret, { expiresIn: '24h' });
 
-    res.json({
+    reply.send({
       success: true,
       user,
       token
     });
   } catch (error) {
-    console.error('Local login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    fastify.log.error({ err: error }, 'Local login error');
+    reply.code(500).send({ error: 'Internal server error' });
   }
 });
 
-app.listen(PORT, () => {
+// Start server
+try {
+  await fastify.listen({ port: PORT, host: '0.0.0.0' });
   console.log(`Team D Admin server running on http://localhost:${PORT}`);
-});
+} catch (err) {
+  fastify.log.error(err);
+  process.exit(1);
+}

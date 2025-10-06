@@ -1,9 +1,9 @@
-import express from 'express';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
+import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import cookie from '@fastify/cookie';
 import jwt from 'jsonwebtoken';
 
-const app = express();
+const fastify = Fastify({ logger: true });
 const PORT = 3114;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -36,83 +36,95 @@ function verifyToken(token: string): { user: AuthUser } | null {
   }
 }
 
-// Middleware
-app.use(cors({
+// Register plugins
+await fastify.register(cors, {
   origin: 'http://localhost:3014',
   credentials: true,
-}));
-app.use(express.json());
-app.use(cookieParser());
+});
 
-// Auth middleware
-const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const token = req.cookies['auth-token'];
+await fastify.register(cookie);
 
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized' });
+// Auth hook
+fastify.decorateRequest('user', null);
+
+fastify.addHook('onRequest', async (request, reply) => {
+  const protectedRoutes = ['/api/auth/me', '/api/auth/token'];
+
+  if (protectedRoutes.includes(request.url)) {
+    const token = request.cookies['auth-token'];
+
+    if (!token) {
+      reply.code(401).send({ error: 'Unauthorized' });
+      return;
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      reply.code(401).send({ error: 'Invalid token' });
+      return;
+    }
+
+    (request as any).user = decoded.user;
   }
-
-  const decoded = verifyToken(token);
-  if (!decoded) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-
-  (req as any).user = decoded.user;
-  next();
-};
+});
 
 // Login endpoint
-app.post('/api/auth/login', async (req, res) => {
+fastify.post('/api/auth/login', async (request, reply) => {
   try {
-    const { email } = req.body;
+    const { email } = request.body as { email: string };
 
     if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
+      return reply.code(400).send({ error: 'Email is required' });
     }
 
     const user = validateUser(email);
     if (!user) {
-      return res.status(401).json({ error: 'User not found' });
+      return reply.code(401).send({ error: 'User not found' });
     }
 
     const token = generateToken(user);
 
-    res.cookie('auth-token', token, {
+    reply.setCookie('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 1000,
+      maxAge: 60 * 60 * 24,
       path: '/'
     });
 
-    res.json({
+    reply.send({
       success: true,
       user: { id: user.id, email: user.email },
       token
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    fastify.log.error({ err: error }, 'Login error');
+    reply.code(500).send({ error: 'Internal server error' });
   }
 });
 
 // Logout endpoint
-app.post('/api/auth/logout', (req, res) => {
-  res.clearCookie('auth-token', { path: '/' });
-  res.json({ success: true });
+fastify.post('/api/auth/logout', async (request, reply) => {
+  reply.clearCookie('auth-token', { path: '/' });
+  reply.send({ success: true });
 });
 
 // Get current user endpoint
-app.get('/api/auth/me', authMiddleware, (req, res) => {
-  res.json({ user: (req as any).user });
+fastify.get('/api/auth/me', async (request, reply) => {
+  reply.send({ user: (request as any).user });
 });
 
 // Get token endpoint
-app.get('/api/auth/token', authMiddleware, (req, res) => {
-  const token = req.cookies['auth-token'];
-  res.json({ token });
+fastify.get('/api/auth/token', async (request, reply) => {
+  const token = request.cookies['auth-token'];
+  reply.send({ token });
 });
 
-app.listen(PORT, () => {
+// Start server
+try {
+  await fastify.listen({ port: PORT, host: '0.0.0.0' });
   console.log(`Team D User server running on http://localhost:${PORT}`);
-});
+} catch (err) {
+  fastify.log.error(err);
+  process.exit(1);
+}
