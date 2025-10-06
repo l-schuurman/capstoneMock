@@ -37,9 +37,22 @@ try {
     const latestFile = files[0];
     const currentPath = path.join(drizzleDir, latestFile.name);
 
-    // Extract the descriptive name (everything after the first underscore)
+    // Check if file was created in the last 5 seconds (truly new)
+    const isNewFile = (Date.now() - latestFile.stats.mtime.getTime()) < 5000;
+
+    if (!isNewFile) {
+      console.log('ℹ️  Latest migration file is not new, skipping rename');
+      console.log('✅ Migration generation completed (no new files to rename)');
+      return;
+    }
+
+    // Extract the descriptive name (strip any existing timestamp prefix)
+    // Format: YYYYMMDD_HHMMSS_description or just timestamp_description
     const nameMatch = latestFile.name.match(/^\d+_(.+)\.sql$/);
-    const descriptiveName = nameMatch ? nameMatch[1] : 'migration';
+    let descriptiveName = nameMatch ? nameMatch[1] : 'migration';
+
+    // Remove any timestamp prefix from the descriptive name (YYYYMMDD_HHMMSS format)
+    descriptiveName = descriptiveName.replace(/^\d{8}_\d{6}_/, '').replace(/^\d+_/, '');
 
     // Create new filename with timestamp prefix
     const timestamp = createTimestampPrefix();
@@ -83,7 +96,9 @@ try {
               // Update entries array
               if (journal.entries) {
                 journal.entries = journal.entries.map(entry => {
-                  if (entry.tag === oldFileName) {
+                  // Strip old timestamp from tag before comparing
+                  const entryDescriptiveName = entry.tag.replace(/^\d{8}_\d{6}_/, '').replace(/^\d+_/, '');
+                  if (entry.tag === oldFileName || entryDescriptiveName === descriptiveName) {
                     return { ...entry, tag: newJournalName };
                   }
                   return entry;
