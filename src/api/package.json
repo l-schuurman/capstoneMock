@@ -1,0 +1,12 @@
+{
+  "name": "@teamd/api",
+  "version": "1.0.0",
+  "description": "Team D API utilities overlay and promotion",
+  "private": true,
+  "scripts": {
+    "promote": "node scripts/promote-utils.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

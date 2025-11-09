@@ -1,0 +1,12 @@
+{
+  "name": "@teamd/api-types",
+  "version": "1.0.0",
+  "description": "Team D API type definitions overlay and promotion",
+  "private": true,
+  "scripts": {
+    "promote": "node scripts/promote-types.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

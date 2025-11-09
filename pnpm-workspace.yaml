@@ -3,7 +3,7 @@ packages:
   - 'src/web-user'
   - 'src/api'
   - 'src/mobile'
-  - 'src/shared'
+  - 'src/shared/api-types'
   - 'src/database'
   # Shared packages from parent monorepo (relative paths)
   - '../../shared/database'
