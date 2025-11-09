@@ -12,14 +12,16 @@
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "baseUrl": ".",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "../../../teamd.config": ["../../../teamd.config.mts"],
+      "../../../../teamd.config": ["../../../teamd.config.mts"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../../teamd.config.mts"],
   "exclude": ["node_modules", "dist"]
 }

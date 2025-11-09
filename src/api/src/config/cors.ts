@@ -3,10 +3,10 @@
  * Imports allowed origins from centralized Team D config
  */
 
-import TeamDConfig from '../../../../teamd.config.js'
+import TeamDConfig from '../../../../teamd.config.mjs'
 
-// Import allowed origins from centralized config
-export const corsOrigins = TeamDConfig.cors.allowedOrigins
+// Import allowed origins from centralized config (convert readonly to mutable)
+export const corsOrigins = [...TeamDConfig.cors.allowedOrigins]
 
 export const corsConfig = {
   origin: corsOrigins,

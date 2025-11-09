@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "composite": true,
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "strict": true
   },
-  "include": ["vite.config.ts", "../../teamd.config.ts"]
+  "include": ["vite.config.ts", "../../teamd.config.mts"]
 }

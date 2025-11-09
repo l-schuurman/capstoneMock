@@ -24,11 +24,11 @@
     }
   },
   "include": [
-    "src"
+    "src",
+    "../../teamd.config.mts"
   ],
   "exclude": [
     "node_modules",
     "dist"
-  ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  ]
 }

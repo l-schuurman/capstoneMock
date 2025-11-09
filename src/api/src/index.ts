@@ -7,7 +7,7 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import cookie from '@fastify/cookie'
 import { corsConfig } from './config/cors.js'
-import TeamDConfig from '../../../teamd.config.js'
+import TeamDConfig from '../../../teamd.config.mjs'
 
 // Import routes
 import authRoutes from './routes/auth.js'
