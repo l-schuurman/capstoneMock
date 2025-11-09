@@ -48,7 +48,7 @@ function TeamDDashboard() {
           border: '1px solid #b3d9ff'
         }}>
           <p style={{ margin: 0, color: '#0066cc' }}>
-            This app is running on port 3024 and ready for development!
+            This app is running on port {import.meta.env.VITE_PORT} and ready for development!
           </p>
           <p style={{ margin: '10px 0 0 0', color: '#0066cc' }}>
             Session authenticated for: <strong>{user?.email}</strong>

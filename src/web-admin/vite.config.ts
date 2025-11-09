@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
 import path from 'path';
+import TeamDConfig from '../../teamd.config';
 
 export default defineConfig({
   plugins: [
@@ -14,10 +15,10 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3024,
+    port: TeamDConfig.webAdmin.port,
     proxy: {
       '/api': {
-        target: 'http://localhost:3124',
+        target: TeamDConfig.api.url.local,
         changeOrigin: true,
       },
     },
@@ -25,5 +26,8 @@ export default defineConfig({
   build: {
     outDir: 'dist/client',
     sourcemap: true,
+  },
+  define: {
+    'import.meta.env.VITE_PORT': JSON.stringify(TeamDConfig.webAdmin.port),
   },
 });
