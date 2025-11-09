@@ -5,6 +5,9 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "skipLibCheck": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
     "paths": {
       "@large-event/database": ["../../../../shared/database/dist"],
       "@large-event/database/*": ["../../../../shared/database/dist/*"]

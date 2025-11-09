@@ -813,7 +813,7 @@ function Dashboard() {
 // src/database/src/overlays/attendees.ts
 import { pgTable, serial, text, integer } from 'drizzle-orm/pg-core'
 
-export const attendees = pgTable('teamd_attendees', {
+export const attendees = pgTable('attendees', {
   id: serial('id').primaryKey(),
   eventId: integer('event_id').notNull(),
   name: text('name').notNull(),

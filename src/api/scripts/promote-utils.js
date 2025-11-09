@@ -100,7 +100,7 @@ async function main() {
     const proceed = await promptUser(`   ✅ Proceed with promotion? (y/n): `);
 
     if (proceed === 'y' || proceed === 'yes') {
-      // Use the same filename (no teamd- prefix as per user request)
+      // Use the same filename
       const targetPath = path.join(sharedApiDir, fileName);
 
       try {
