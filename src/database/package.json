@@ -16,7 +16,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@large-event/database": "workspace:*",
+    "@large-event/database": "^1.0.0",
     "drizzle-orm": "^0.30.10",
     "pg": "^8.11.5"
   },

@@ -274,6 +274,159 @@ PORT=5000 pnpm dev:api  # API runs on port 5000 instead of 3004
 
 ---
 
+## 📦 Private Package Registry Setup
+
+Team D uses a **hybrid registry approach** for `@large-event` shared packages, allowing development both inside and outside the monorepo.
+
+### Architecture
+
+```
+Development Context          Package Resolution
+─────────────────────────────────────────────────────
+Inside Monorepo     ──→   Workspace Linking (fast)
+                               ↓ (if unavailable)
+Outside Monorepo    ──→   GitHub Packages (fallback)
+                          OR
+Local Development   ──→   Verdaccio (local registry)
+```
+
+### Available Registries
+
+#### 1. **Workspace Linking** (Primary - Inside Monorepo)
+When developing inside the main monorepo, pnpm automatically links `@large-event` packages from `shared/`:
+
+```bash
+# These are symlinked automatically
+@large-event/database  → ../../../../../../shared/database
+@large-event/api       → ../../../../../../shared/api
+@large-event/api-types → ../../../../../../shared/api-types
+```
+
+**Configuration:** Already set via `prefer-workspace-packages=true` in `.npmrc`
+
+#### 2. **GitHub Packages** (Fallback - Outside Monorepo)
+When Team D repo is cloned independently (outside monorepo), packages fallback to GitHub Packages.
+
+**Setup:**
+1. Create GitHub Personal Access Token:
+   - Go to https://github.com/settings/tokens
+   - Generate new token (classic)
+   - Select scopes: `read:packages`, `write:packages` (if publishing)
+   - Copy the token (starts with `ghp_`)
+
+2. Set environment variable:
+   ```bash
+   # Add to ~/.zshrc or ~/.bashrc
+   export LARGE_EVENTS_GITHUB_TOKEN=ghp_your_token_here
+   ```
+
+3. Or add to your user `.npmrc`:
+   ```bash
+   # ~/.npmrc
+   //npm.pkg.github.com/:_authToken=ghp_your_token_here
+   ```
+
+**Install packages:**
+```bash
+cd teams/teamD
+pnpm install  # Automatically uses GitHub Packages for @large-event packages
+```
+
+#### 3. **Verdaccio** (Local Development - Optional)
+For offline development or faster local package resolution, use Verdaccio.
+
+**Start Verdaccio:**
+```bash
+# From monorepo root
+docker-compose up -d verdaccio
+
+# Verdaccio UI available at: http://localhost:4873
+```
+
+**Publish packages to Verdaccio:**
+```bash
+# From monorepo root
+./scripts/publish-to-verdaccio.sh
+```
+
+**Use Verdaccio (instead of GitHub Packages):**
+Edit `teams/teamD/.npmrc` and uncomment:
+```
+# @large-event:registry=http://localhost:4873
+```
+
+Comment out GitHub Packages line:
+```
+# @large-event:registry=https://npm.pkg.github.com
+```
+
+### Package Configuration
+
+Team D API `package.json` uses **semver ranges** (not `workspace:*`):
+```json
+{
+  "dependencies": {
+    "@large-event/api": "^1.0.0",
+    "@large-event/database": "^1.0.0"
+  }
+}
+```
+
+This allows pnpm to:
+1. **First** try workspace linking (if inside monorepo)
+2. **Then** fallback to configured registry (if outside monorepo)
+
+### Publishing Packages
+
+#### Automatic (GitHub Actions)
+Packages are automatically published to GitHub Packages when changes are pushed to `main` branch:
+
+```yaml
+# Workflow: .github/workflows/publish-packages.yml
+on:
+  push:
+    branches: [main]
+    paths: ['shared/**']
+```
+
+#### Manual (Verdaccio)
+For local testing:
+```bash
+# From monorepo root
+./scripts/publish-to-verdaccio.sh
+```
+
+### Troubleshooting
+
+**Problem:** `ERR_PNPM_WORKSPACE_PKG_NOT_FOUND`
+**Solution:** Install from monorepo root first:
+```bash
+cd /path/to/large-event  # Monorepo root
+pnpm install
+```
+
+**Problem:** Verdaccio connection refused
+**Solution:** Start Verdaccio:
+```bash
+docker-compose up -d verdaccio
+```
+
+**Problem:** GitHub Packages 401 Unauthorized
+**Solution:** Check LARGE_EVENTS_GITHUB_TOKEN is set:
+```bash
+echo $LARGE_EVENTS_GITHUB_TOKEN  # Should output your token
+```
+
+### Benefits
+
+✅ **Flexible** - Works inside and outside monorepo
+✅ **Fast** - Workspace linking when available
+✅ **Offline-capable** - Verdaccio for local development
+✅ **CI/CD ready** - Automatic publishing via GitHub Actions
+✅ **Free** - No cost for private packages (GitHub free tier)
+
+---
+
 ## Tech Stack Details
 
 ### Frontend Architecture

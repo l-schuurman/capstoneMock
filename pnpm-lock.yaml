@@ -12,60 +12,6 @@ importers:
         specifier: ^8.2.2
         version: 8.2.2
 
-  ../../shared/api:
-    dependencies:
-      '@large-event/api-types':
-        specifier: workspace:*
-        version: link:../api-types
-      '@large-event/database':
-        specifier: workspace:*
-        version: link:../database
-      drizzle-orm:
-        specifier: ^0.30.10
-        version: 0.30.10(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
-      jsonwebtoken:
-        specifier: ^9.0.2
-        version: 9.0.2
-    devDependencies:
-      '@types/jsonwebtoken':
-        specifier: ^9.0.10
-        version: 9.0.10
-      typescript:
-        specifier: ^5.4.5
-        version: 5.9.3
-
-  ../../shared/api-types:
-    dependencies:
-      '@large-event/database':
-        specifier: workspace:*
-        version: link:../database
-    devDependencies:
-      typescript:
-        specifier: ^5.4.5
-        version: 5.9.3
-
-  ../../shared/database:
-    dependencies:
-      drizzle-orm:
-        specifier: ^0.30.10
-        version: 0.30.10(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
-      pg:
-        specifier: ^8.11.5
-        version: 8.16.3
-    devDependencies:
-      '@types/pg':
-        specifier: ^8.11.5
-        version: 8.15.6
-      drizzle-kit:
-        specifier: ^0.21.2
-        version: 0.21.4
-      tsx:
-        specifier: ^4.7.2
-        version: 4.20.6
-      typescript:
-        specifier: ^5.4.5
-        version: 5.9.3
-
   src/api:
     dependencies:
       '@fastify/cookie':
@@ -75,11 +21,11 @@ importers:
         specifier: ^10.0.1
         version: 10.1.0
       '@large-event/api':
-        specifier: workspace:*
-        version: link:../../../../shared/api
+        specifier: ^1.0.0
+        version: 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
       '@large-event/database':
-        specifier: workspace:*
-        version: link:../../../../shared/database
+        specifier: ^1.0.0
+        version: 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
       '@teamd/database':
         specifier: workspace:*
         version: link:../database
@@ -109,8 +55,8 @@ importers:
   src/database:
     dependencies:
       '@large-event/database':
-        specifier: workspace:*
-        version: link:../../../../shared/database
+        specifier: ^1.0.0
+        version: 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
       drizzle-orm:
         specifier: ^0.30.10
         version: 0.30.10(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
@@ -1110,6 +1056,15 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@large-event/api-types@1.0.0':
+    resolution: {integrity: sha512-EN6r/Xld9t81+PdYkCAZUZW4Gxgx+o0Wh4FSAySD/ja0nku73kgO0TQraZK1EYMmvQpMhEqVqKglZdEKTitjTg==}
+
+  '@large-event/api@1.0.0':
+    resolution: {integrity: sha512-G5Lbb4A9ZLTWatbuEy4J4HzvFGA7I43E2tcwLLF0Uk+Bb0YymkkS4pBYWYkT3ZhtQk9bZK+NxitxoZDcQjGMUA==}
+
+  '@large-event/database@1.0.0':
+    resolution: {integrity: sha512-VqfIB8NSWatvCyt5ZKQEHvOl9bGEC8UjNULwVs+8kVQXJ5wCS97j94fg2U9kfnmIqwQewxJC6XEuX/g8xrY5VQ==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -3570,6 +3525,101 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@large-event/api-types@1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
+      '@large-event/database': 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
+    transitivePeerDependencies:
+      - '@aws-sdk/client-rds-data'
+      - '@cloudflare/workers-types'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@neondatabase/serverless'
+      - '@op-engineering/op-sqlite'
+      - '@opentelemetry/api'
+      - '@planetscale/database'
+      - '@types/better-sqlite3'
+      - '@types/pg'
+      - '@types/react'
+      - '@types/sql.js'
+      - '@vercel/postgres'
+      - '@xata.io/client'
+      - better-sqlite3
+      - bun-types
+      - expo-sqlite
+      - knex
+      - kysely
+      - mysql2
+      - pg-native
+      - postgres
+      - react
+      - sql.js
+      - sqlite3
+
+  '@large-event/api@1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)':
+    dependencies:
+      '@large-event/api-types': 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
+      '@large-event/database': 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
+      drizzle-orm: 0.30.10(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
+      jsonwebtoken: 9.0.2
+    transitivePeerDependencies:
+      - '@aws-sdk/client-rds-data'
+      - '@cloudflare/workers-types'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@neondatabase/serverless'
+      - '@op-engineering/op-sqlite'
+      - '@opentelemetry/api'
+      - '@planetscale/database'
+      - '@types/better-sqlite3'
+      - '@types/pg'
+      - '@types/react'
+      - '@types/sql.js'
+      - '@vercel/postgres'
+      - '@xata.io/client'
+      - better-sqlite3
+      - bun-types
+      - expo-sqlite
+      - knex
+      - kysely
+      - mysql2
+      - pg
+      - pg-native
+      - postgres
+      - react
+      - sql.js
+      - sqlite3
+
+  '@large-event/database@1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
+      drizzle-orm: 0.30.10(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
+      pg: 8.16.3
+    transitivePeerDependencies:
+      - '@aws-sdk/client-rds-data'
+      - '@cloudflare/workers-types'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@neondatabase/serverless'
+      - '@op-engineering/op-sqlite'
+      - '@opentelemetry/api'
+      - '@planetscale/database'
+      - '@types/better-sqlite3'
+      - '@types/pg'
+      - '@types/react'
+      - '@types/sql.js'
+      - '@vercel/postgres'
+      - '@xata.io/client'
+      - better-sqlite3
+      - bun-types
+      - expo-sqlite
+      - knex
+      - kysely
+      - mysql2
+      - pg-native
+      - postgres
+      - react
+      - sql.js
+      - sqlite3
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
