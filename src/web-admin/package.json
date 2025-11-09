@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "start": "node dist/server/index.js",
     "lint": "eslint . --ext ts,tsx",
-    "clean": "rm -rf dist .next"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@fastify/cookie": "^10.0.1",

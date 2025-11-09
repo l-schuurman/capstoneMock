@@ -4,3 +4,8 @@ packages:
   - 'src/api'
   - 'src/mobile'
   - 'src/shared'
+  - 'src/database'
+  # Shared packages from parent monorepo (relative paths)
+  - '../../shared/database'
+  - '../../shared/api-types'
+  - '../../shared/api'
