@@ -1,8 +1,31 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Get migration name from command line argument
+const migrationName = process.argv[2];
+
+if (!migrationName) {
+  console.error('❌ Error: Migration name is required');
+  console.error('Usage: pnpm generate "migration name"');
+  console.error('Example: pnpm generate "organizations instances"');
+  process.exit(1);
+}
+
+function sanitizeMigrationName(name) {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_')           // Replace spaces with underscores
+    .replace(/[^a-z0-9_]/g, '')     // Remove special characters
+    .substring(0, 30);               // Truncate to 30 characters
+}
 
 function createTimestampPrefix() {
   const now = new Date();
@@ -16,11 +39,12 @@ function createTimestampPrefix() {
   return `${year}${month}${day}_${hours}${minutes}${seconds}`;
 }
 
-console.log('🚀 Generating timestamped migration...');
+const sanitizedName = sanitizeMigrationName(migrationName);
+console.log(`🚀 Generating migration: ${sanitizedName}`);
 
 try {
-  // Generate migration with drizzle-kit
-  execSync('pnpm drizzle-kit generate', { stdio: 'inherit' });
+  // Generate migration with drizzle-kit using custom name
+  execSync(`pnpm drizzle-kit generate --name="${sanitizedName}"`, { stdio: 'inherit' });
 
   const drizzleDir = path.join(__dirname, '..', 'drizzle');
 
@@ -43,20 +67,12 @@ try {
     if (!isNewFile) {
       console.log('ℹ️  Latest migration file is not new, skipping rename');
       console.log('✅ Migration generation completed (no new files to rename)');
-      return;
+      process.exit(0);
     }
-
-    // Extract the descriptive name (strip any existing timestamp prefix)
-    // Format: YYYYMMDD_HHMMSS_description or just timestamp_description
-    const nameMatch = latestFile.name.match(/^\d+_(.+)\.sql$/);
-    let descriptiveName = nameMatch ? nameMatch[1] : 'migration';
-
-    // Remove any timestamp prefix from the descriptive name (YYYYMMDD_HHMMSS format)
-    descriptiveName = descriptiveName.replace(/^\d{8}_\d{6}_/, '').replace(/^\d+_/, '');
 
     // Create new filename with timestamp prefix
     const timestamp = createTimestampPrefix();
-    const newFileName = `${timestamp}_${descriptiveName}.sql`;
+    const newFileName = `${timestamp}_${sanitizedName}.sql`;
     const newPath = path.join(drizzleDir, newFileName);
 
     // Rename the SQL file
@@ -77,7 +93,7 @@ try {
       if (metaFiles.length > 0) {
         const latestMeta = metaFiles[0];
         const currentMetaPath = path.join(metaDir, latestMeta.name);
-        const newMetaName = `${timestamp}_${descriptiveName}.json`;
+        const newMetaName = `${timestamp}_${sanitizedName}.json`;
         const newMetaPath = path.join(metaDir, newMetaName);
 
         fs.renameSync(currentMetaPath, newMetaPath);
@@ -91,14 +107,13 @@ try {
             if (journalContent) {
               const journal = JSON.parse(journalContent);
               const oldFileName = latestFile.name.replace('.sql', '');
-              const newJournalName = `${timestamp}_${descriptiveName}`;
+              const newJournalName = `${timestamp}_${sanitizedName}`;
 
               // Update entries array
               if (journal.entries) {
                 journal.entries = journal.entries.map(entry => {
-                  // Strip old timestamp from tag before comparing
-                  const entryDescriptiveName = entry.tag.replace(/^\d{8}_\d{6}_/, '').replace(/^\d+_/, '');
-                  if (entry.tag === oldFileName || entryDescriptiveName === descriptiveName) {
+                  // Match entries that contain the sanitized name
+                  if (entry.tag === oldFileName || entry.tag.includes(sanitizedName)) {
                     return { ...entry, tag: newJournalName };
                   }
                   return entry;
