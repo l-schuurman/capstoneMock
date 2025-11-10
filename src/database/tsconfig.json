@@ -1,6 +1,9 @@
 {
-  "extends": "../../../../tsconfig.json",
   "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": ".",
@@ -8,10 +11,11 @@
     "noEmit": false,
     "declaration": true,
     "declarationMap": true,
-    "paths": {
-      "@large-event/database": ["../../../../shared/database/dist"],
-      "@large-event/database/*": ["../../../../shared/database/dist/*"]
-    }
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true
   },
   "include": [
     "src/**/*"
