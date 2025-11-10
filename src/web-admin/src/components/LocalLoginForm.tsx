@@ -52,13 +52,30 @@ export default function LocalLoginForm({ onLoginSuccess }: LocalLoginFormProps) 
     setEmail(userEmail);
   };
 
+  // Seed users for quick access
+  const seedUsers = [
+    { email: 'admin@system.com', label: 'System Admin', badge: 'All Access' },
+    { email: 'admin@mes.dev', label: 'MES Admin', badge: 'MES Org' },
+    { email: 'admin@cfes.dev', label: 'CFES Admin', badge: 'CFES Org' },
+    { email: 'admin@cale.dev', label: 'CALE Admin', badge: 'CALE Org' },
+    { email: 'admin@fireball.dev', label: 'Fireball Admin', badge: 'Fireball Only' },
+    { email: 'admin@toga.dev', label: 'Toga Admin', badge: 'Toga Only' },
+    { email: 'admin@grad.dev', label: 'Grad Admin', badge: 'Grad Only' },
+    { email: 'admin@graffiti.dev', label: 'Graffiti Admin', badge: 'Graffiti Only' },
+    { email: 'admin@natsurvey.dev', label: 'NatSurvey Admin', badge: 'Survey Only' },
+    { email: 'admin@cale2026.dev', label: 'CALE 2026 Admin', badge: 'CALE 2026 Only' },
+    { email: 'user@mes.dev', label: 'MES User', badge: 'User Portal' },
+    { email: 'user@cfes.dev', label: 'CFES User', badge: 'User Portal' },
+    { email: 'user@cale.dev', label: 'CALE User', badge: 'User Portal' },
+  ];
+
   return (
     <div style={{
       backgroundColor: '#ffffff',
       padding: '30px',
       borderRadius: '8px',
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-      maxWidth: '400px',
+      maxWidth: '600px',
       width: '100%'
     }}>
       <h2 style={{
@@ -127,6 +144,82 @@ export default function LocalLoginForm({ onLoginSuccess }: LocalLoginFormProps) 
           </div>
         )}
       </form>
+
+      {/* Quick User Selector */}
+      <div style={{
+        marginTop: '25px',
+        paddingTop: '20px',
+        borderTop: '1px solid #ddd'
+      }}>
+        <h3 style={{
+          color: '#495057',
+          fontSize: '0.9rem',
+          marginBottom: '12px',
+          fontWeight: '600'
+        }}>
+          Quick Login (Development)
+        </h3>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '8px',
+          maxHeight: '300px',
+          overflowY: 'auto'
+        }}>
+          {seedUsers.map((user) => (
+            <button
+              key={user.email}
+              type="button"
+              onClick={() => quickLogin(user.email)}
+              disabled={loading}
+              style={{
+                padding: '8px 10px',
+                backgroundColor: email === user.email ? '#e7f3ff' : '#f8f9fa',
+                border: email === user.email ? '2px solid #0066cc' : '1px solid #dee2e6',
+                borderRadius: '4px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                textAlign: 'left',
+                fontSize: '0.75rem',
+                transition: 'all 0.2s',
+                opacity: loading ? 0.6 : 1
+              }}
+              onMouseEnter={(e) => {
+                if (!loading && email !== user.email) {
+                  e.currentTarget.style.backgroundColor = '#e9ecef';
+                  e.currentTarget.style.borderColor = '#adb5bd';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (email !== user.email) {
+                  e.currentTarget.style.backgroundColor = '#f8f9fa';
+                  e.currentTarget.style.borderColor = '#dee2e6';
+                }
+              }}
+            >
+              <div style={{ fontWeight: '600', color: '#212529', marginBottom: '2px' }}>
+                {user.label}
+              </div>
+              <div style={{
+                fontSize: '0.7rem',
+                color: '#6c757d',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {user.email}
+              </div>
+              <div style={{
+                fontSize: '0.65rem',
+                color: '#6f42c1',
+                fontWeight: '500',
+                marginTop: '3px'
+              }}>
+                {user.badge}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
 
     </div>
   );

@@ -177,6 +177,10 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   const handleLocalLogin = (authUser: AuthUser, token: string) => {
     console.log('Local login successful:', authUser);
+
+    // Dispatch custom event to notify other components (like InstanceContext) that auth has changed
+    window.dispatchEvent(new Event('teamd-auth-changed'));
+
     // Reload to update AuthContext
     window.location.reload();
   };

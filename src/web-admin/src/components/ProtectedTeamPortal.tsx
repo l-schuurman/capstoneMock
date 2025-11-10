@@ -221,6 +221,9 @@ export default function ProtectedTeamPortal({ children }: ProtectedTeamPortalPro
   const handleLocalLogin = (authUser: AuthUser, token: string) => {
     console.log('Local login successful:', authUser);
     setUser(authUser);
+
+    // Dispatch custom event to notify other components (like InstanceContext) that auth has changed
+    window.dispatchEvent(new Event('teamd-auth-changed'));
   };
 
   if (!user) {

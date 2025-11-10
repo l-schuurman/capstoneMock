@@ -2,5 +2,12 @@
   "version": "6",
   "dialect": "postgresql",
   "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1762803228551,
+      "tag": "20251110_143348_organization_instance_users",
+      "breakpoints": true
+    }
   ]
 }

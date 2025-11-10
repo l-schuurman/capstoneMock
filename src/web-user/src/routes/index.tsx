@@ -2,9 +2,11 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useAuth } from '../contexts/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useState, useEffect } from 'react';
+import { useInstance, Instance } from '../lib/instance-context';
 
 function HomePage() {
   const { user, logout } = useAuth();
+  const { instances, loading, error, currentInstance, setCurrentInstance } = useInstance();
   const [isLocalAuth, setIsLocalAuth] = useState(false);
 
   useEffect(() => {
@@ -13,36 +15,29 @@ function HomePage() {
     setIsLocalAuth(authSource === 'local');
   }, [user]);
 
-  const services = [
-    {
-      title: 'Service Area 1',
-      description: 'Team D service offerings and capabilities for large event support.',
-      icon: '⚙️',
-      features: ['Feature A', 'Feature B', 'Feature C', 'Feature D']
-    },
-    {
-      title: 'Service Area 2',
-      description: 'Additional team capabilities and service offerings.',
-      icon: '🛠️',
-      features: ['Feature E', 'Feature F', 'Feature G', 'Feature H']
-    },
-    {
-      title: 'Support Services',
-      description: 'Team D support and assistance for event operations.',
-      icon: '🔧',
-      features: ['Support Type 1', 'Support Type 2', 'Support Type 3', 'Support Type 4']
-    },
-    {
-      title: 'Additional Services',
-      description: 'Extended team capabilities and specialized services.',
-      icon: '📋',
-      features: ['Service 1', 'Service 2', 'Service 3', 'Service 4']
+  // Filter instances to only show user portal access (web_user or both)
+  const userInstances = instances.filter(
+    (instance) => instance.accessLevel === 'web_user' || instance.accessLevel === 'both'
+  );
+
+  // Group instances by owner organization
+  const instancesByOrg = userInstances.reduce((acc, instance) => {
+    const orgName = instance.ownerOrganization.name;
+    if (!acc[orgName]) {
+      acc[orgName] = [];
     }
-  ];
+    acc[orgName].push(instance);
+    return acc;
+  }, {} as Record<string, Instance[]>);
 
   return (
     <ProtectedRoute>
-      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: '#f9fafb',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
         {/* Header */}
         <header style={{
           backgroundColor: '#8b5cf6',
@@ -98,14 +93,16 @@ function HomePage() {
 
         {/* Main Content */}
         <main style={{
+          flex: 1,
           maxWidth: '1200px',
           margin: '0 auto',
-          padding: '40px 20px'
+          padding: '40px 20px',
+          width: '100%'
         }}>
           {/* Welcome Section */}
           <div style={{
             textAlign: 'center',
-            marginBottom: '60px'
+            marginBottom: '40px'
           }}>
             <h2 style={{
               fontSize: '2.5rem',
@@ -113,7 +110,7 @@ function HomePage() {
               color: '#1f2937',
               marginBottom: '16px'
             }}>
-              Welcome, {user?.email}
+              Hi {user?.email}
             </h2>
             <p style={{
               fontSize: '1.2rem',
@@ -121,143 +118,136 @@ function HomePage() {
               maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Team D services and capabilities for large event support.
-              Access your team resources and manage event-related activities.
+              Select an event to access
             </p>
           </div>
 
-          {/* Services Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '30px',
-            marginBottom: '60px'
-          }}>
-            {services.map((service, index) => (
-              <div
-                key={index}
-                style={{
-                  backgroundColor: 'white',
-                  padding: '30px',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                  border: '1px solid #e5e7eb',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-                }}
-              >
-                <div style={{
-                  fontSize: '3rem',
-                  marginBottom: '20px',
-                  textAlign: 'center'
-                }}>
-                  {service.icon}
-                </div>
-                <h3 style={{
-                  fontSize: '1.3rem',
-                  fontWeight: 'bold',
-                  color: '#1f2937',
-                  marginBottom: '12px',
-                  textAlign: 'center'
-                }}>
-                  {service.title}
-                </h3>
-                <p style={{
-                  color: '#6b7280',
-                  marginBottom: '20px',
-                  lineHeight: '1.6',
-                  textAlign: 'center'
-                }}>
-                  {service.description}
-                </p>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '8px'
-                }}>
-                  {service.features.map((feature, featureIndex) => (
-                    <div
-                      key={featureIndex}
-                      style={{
-                        backgroundColor: '#f3f4f6',
-                        padding: '8px 12px',
-                        borderRadius: '6px',
-                        fontSize: '0.85rem',
-                        color: '#374151',
-                        textAlign: 'center'
-                      }}
-                    >
-                      {feature}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Contact Section */}
-          <div style={{
-            backgroundColor: 'white',
-            padding: '40px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            textAlign: 'center'
-          }}>
-            <h3 style={{
-              fontSize: '1.8rem',
-              fontWeight: 'bold',
-              color: '#1f2937',
-              marginBottom: '16px'
-            }}>
-              Need Team D Services?
-            </h3>
-            <p style={{
-              color: '#6b7280',
-              marginBottom: '30px',
-              fontSize: '1.1rem'
-            }}>
-              Contact the team to discuss your event requirements and service needs.
-            </p>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '20px',
-              flexWrap: 'wrap'
-            }}>
-              <button style={{
-                backgroundColor: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}>
-                Contact Team
-              </button>
-              <button style={{
-                backgroundColor: '#f3f4f6',
-                color: '#374151',
-                border: '1px solid #d1d5db',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}>
-                View Services
-              </button>
+          {/* Loading State */}
+          {loading && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              Loading instances...
             </div>
-          </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div style={{
+              backgroundColor: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '8px',
+              padding: '20px',
+              color: '#c33',
+              textAlign: 'center'
+            }}>
+              <strong>Error:</strong> {error}
+            </div>
+          )}
+
+          {/* No Access State */}
+          {!loading && !error && userInstances.length === 0 && (
+            <div style={{
+              backgroundColor: '#fff3cd',
+              border: '1px solid #ffc107',
+              borderRadius: '8px',
+              padding: '20px',
+              color: '#856404',
+              textAlign: 'center'
+            }}>
+              <strong>No user access available.</strong> You need user portal access to view this page.
+            </div>
+          )}
+
+          {/* Instances Grid by Organization */}
+          {!loading && !error && Object.keys(instancesByOrg).length > 0 && (
+            <div>
+              {Object.entries(instancesByOrg).map(([orgName, orgInstances]) => (
+                <div key={orgName} style={{ marginBottom: '40px' }}>
+                  <h3 style={{
+                    fontSize: '1.5rem',
+                    color: '#495057',
+                    marginBottom: '20px',
+                    borderBottom: '2px solid #dee2e6',
+                    paddingBottom: '10px'
+                  }}>
+                    {orgName}
+                  </h3>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                    gap: '20px'
+                  }}>
+                    {orgInstances.map((instance) => (
+                      <div
+                        key={instance.id}
+                        style={{
+                          backgroundColor: 'white',
+                          border: currentInstance?.id === instance.id ? '3px solid #007bff' : '1px solid #dee2e6',
+                          borderRadius: '8px',
+                          padding: '20px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          boxShadow: currentInstance?.id === instance.id
+                            ? '0 4px 12px rgba(0,123,255,0.3)'
+                            : '0 2px 4px rgba(0,0,0,0.1)'
+                        }}
+                        onClick={() => setCurrentInstance(instance)}
+                        onMouseEnter={(e) => {
+                          if (currentInstance?.id !== instance.id) {
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (currentInstance?.id !== instance.id) {
+                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }
+                        }}
+                      >
+                        <h4 style={{
+                          fontSize: '1.25rem',
+                          color: '#212529',
+                          marginBottom: '10px',
+                          fontWeight: '600'
+                        }}>
+                          {instance.name}
+                        </h4>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '8px',
+                          fontSize: '0.9rem',
+                          color: '#6c757d'
+                        }}>
+                          <div>
+                            <strong>Organization:</strong> {instance.ownerOrganization.name}
+                            {instance.ownerOrganization.acronym && ` (${instance.ownerOrganization.acronym})`}
+                          </div>
+                          <div>
+                            <strong>Access:</strong> {instance.accessLevel === 'both' ? 'Full Access' : instance.accessLevel === 'web_admin' ? 'Admin Portal' : 'User Portal'}
+                          </div>
+                        </div>
+                        {currentInstance?.id === instance.id && (
+                          <div style={{
+                            marginTop: '15px',
+                            padding: '8px',
+                            backgroundColor: '#d1ecf1',
+                            borderRadius: '4px',
+                            color: '#0c5460',
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            textAlign: 'center'
+                          }}>
+                            ✓ Currently Selected
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </main>
 
         {/* Footer */}
@@ -265,7 +255,7 @@ function HomePage() {
           backgroundColor: '#1f2937',
           color: '#9ca3af',
           padding: '30px 0',
-          marginTop: '60px'
+          marginTop: 'auto'
         }}>
           <div style={{
             maxWidth: '1200px',

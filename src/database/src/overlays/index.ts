@@ -6,8 +6,5 @@
  * uncomment the relevant export below.
  */
 
-// export * from './team-specific-tables';
+export * from './team-specific-tables';
 // export * from './extensions';
-
-// Empty export for now - add your schemas above when ready
-export {};
