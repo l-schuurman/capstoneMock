@@ -32,19 +32,19 @@ export default function LocalLoginForm({ onLoginSuccess }: LocalLoginFormProps) 
 
       if (response.ok) {
         const data = await response.json();
-        if (data.user && data.token) {
+        if (data.success && data.data?.user && data.data?.token) {
           // Store auth info
-          sessionStorage.setItem('teamd-auth-user', JSON.stringify(data.user));
-          sessionStorage.setItem('teamd-auth-token', data.token);
+          sessionStorage.setItem('teamd-auth-user', JSON.stringify(data.data.user));
+          sessionStorage.setItem('teamd-auth-token', data.data.token);
           sessionStorage.setItem('teamd-auth-source', 'local');
 
-          onLoginSuccess(data.user, data.token);
+          onLoginSuccess(data.data.user, data.data.token);
         } else {
           setError('Invalid response from server');
         }
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Login failed');
+        setError(errorData.error?.message || errorData.error || 'Login failed');
       }
     } catch (error) {
       setError('An error occurred during login. Please try again.');
@@ -144,22 +144,6 @@ export default function LocalLoginForm({ onLoginSuccess }: LocalLoginFormProps) 
           {isLoading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
-
-      <div style={{
-        marginTop: '24px',
-        padding: '16px',
-        backgroundColor: '#f0f9ff',
-        borderRadius: '6px',
-        fontSize: '14px',
-        color: '#0c4a6e'
-      }}>
-        <p style={{ margin: '0 0 8px 0', fontWeight: 'bold' }}>Valid test accounts:</p>
-        <ul style={{ margin: 0, paddingLeft: '20px' }}>
-          <li>user@teamd.local</li>
-          <li>test@teamd.dev</li>
-          <li>demo@teamd.local</li>
-        </ul>
-      </div>
     </div>
   );
 }

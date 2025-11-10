@@ -22,7 +22,7 @@ export default function LocalLoginForm({ onLoginSuccess }: LocalLoginFormProps) 
     }
 
     try {
-      const response = await fetch('/api/auth/local-login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -32,13 +32,13 @@ export default function LocalLoginForm({ onLoginSuccess }: LocalLoginFormProps) 
 
       if (response.ok && data.success) {
         // Store local auth
-        sessionStorage.setItem('teamd-auth-user', JSON.stringify(data.user));
-        sessionStorage.setItem('teamd-auth-token', data.token);
+        sessionStorage.setItem('teamd-auth-user', JSON.stringify(data.data.user));
+        sessionStorage.setItem('teamd-auth-token', data.data.token);
         sessionStorage.setItem('teamd-auth-source', 'local');
 
-        onLoginSuccess(data.user, data.token);
+        onLoginSuccess(data.data.user, data.data.token);
       } else {
-        setError(data.error || 'Login failed');
+        setError(data.error?.message || data.error || 'Login failed');
       }
     } catch (error) {
       setError('Login failed. Please try again.');
@@ -128,45 +128,6 @@ export default function LocalLoginForm({ onLoginSuccess }: LocalLoginFormProps) 
         )}
       </form>
 
-      <div style={{
-        marginTop: '20px',
-        padding: '15px',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '4px'
-      }}>
-        <p style={{
-          margin: '0 0 10px 0',
-          fontSize: '0.8rem',
-          color: '#6c757d',
-          fontWeight: 'bold'
-        }}>
-          Quick Login (Development):
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-          {[
-            'teamd@local.dev',
-            'dev@teamd.local',
-            'test@teamd.dev',
-            'admin@teamd.local'
-          ].map(userEmail => (
-            <button
-              key={userEmail}
-              onClick={() => quickLogin(userEmail)}
-              style={{
-                padding: '4px 8px',
-                fontSize: '0.7rem',
-                backgroundColor: '#e9ecef',
-                border: '1px solid #dee2e6',
-                borderRadius: '3px',
-                cursor: 'pointer',
-                color: '#495057'
-              }}
-            >
-              {userEmail}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

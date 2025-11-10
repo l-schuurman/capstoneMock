@@ -116,7 +116,7 @@ export const TeamDConfig = {
    * JWT Configuration
    */
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+    secret: (typeof process !== 'undefined' && process.env?.JWT_SECRET) || 'your-secret-key-change-in-production',
     expiresIn: '24h',
   },
 } as const
@@ -139,6 +139,7 @@ export function getServiceUrl(
  * Helper to check if running in Docker
  */
 export function isDocker(): boolean {
+  if (typeof process === 'undefined') return false
   return process.env.DOCKER === 'true' || process.env.NODE_ENV === 'production'
 }
 

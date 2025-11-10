@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const payload = JSON.parse(atob(authToken.split('.')[1]));
           if (payload.user?.email) {
-            sessionStorage.setItem('auth-token', authToken);
+            sessionStorage.setItem('teamd-auth-token', authToken);
             sessionStorage.setItem('teamd-auth-source', 'main');
             setUser(payload.user);
 
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Check for stored session token (only if it was from main portal or local)
-      const storedToken = sessionStorage.getItem('auth-token');
+      const storedToken = sessionStorage.getItem('teamd-auth-token');
       const authSource = sessionStorage.getItem('teamd-auth-source');
 
       if (storedToken && authSource) {
@@ -57,12 +57,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
           } else {
             // Token expired, clear storage
-            sessionStorage.removeItem('auth-token');
+            sessionStorage.removeItem('teamd-auth-token');
             sessionStorage.removeItem('teamd-auth-source');
           }
         } catch (error) {
           // Invalid token, clear storage
-          sessionStorage.removeItem('auth-token');
+          sessionStorage.removeItem('teamd-auth-token');
           sessionStorage.removeItem('teamd-auth-source');
         }
       }
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         if (data.token) {
-          sessionStorage.setItem('auth-token', data.token);
+          sessionStorage.setItem('teamd-auth-token', data.token);
           sessionStorage.setItem('teamd-auth-source', 'local');
         }
         setUser(data.user);
@@ -118,10 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
-      sessionStorage.removeItem('auth-token');
+      sessionStorage.removeItem('teamd-auth-token');
       sessionStorage.removeItem('teamd-auth-source');
       sessionStorage.removeItem('teamd-auth-user');
-      sessionStorage.removeItem('teamd-auth-token');
       setUser(null);
       window.location.reload();
     }

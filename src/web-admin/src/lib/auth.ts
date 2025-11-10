@@ -1,3 +1,5 @@
+import TeamDConfig from '../../../../teamd.config.mts';
+
 export interface AuthUser {
   id: number;
   email: string;
@@ -127,7 +129,7 @@ export function getCurrentUser(): AuthUser | null {
 export async function checkMainPortalAuth(): Promise<AuthUser | null> {
   try {
     console.log('Checking main portal auth...');
-    const response = await fetch('http://localhost:4001/api/auth/token', {
+    const response = await fetch(`${TeamDConfig.webAdmin.url.local}/api/auth/token`, {
       credentials: 'include',
       headers: {
         'Accept': 'application/json',
