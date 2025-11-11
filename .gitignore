@@ -289,3 +289,4 @@ teamd.config.mjs
 teamd.config.*.map
 teamd.config.d.mts
 *.gen.ts
+.tanstack/

@@ -6,5 +6,4 @@
  * uncomment the relevant export below.
  */
 
-export * from './team-specific-tables';
-// export * from './extensions';
+// export * from './team-specific-tables';
