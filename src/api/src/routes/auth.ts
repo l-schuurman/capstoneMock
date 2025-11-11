@@ -45,13 +45,14 @@ export default async function authRoutes(fastify: FastifyInstance) {
       // Generate JWT token
       const token = generateToken(userWithRole)
 
-      // Set HTTP-only cookie
+      // Set HTTP-only cookie (shared across main portal and team dashboards)
       reply.setCookie('auth-token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
         maxAge: 24 * 60 * 60, // 24 hours
+        domain: process.env.NODE_ENV === 'production' ? '.large-event.com' : undefined
       })
 
       return successResponse(reply, {
@@ -69,7 +70,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
    * Clear auth cookie
    */
   fastify.post('/auth/logout', async (request, reply) => {
-    reply.clearCookie('auth-token', { path: '/' })
+    reply.clearCookie('auth-token', {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      domain: process.env.NODE_ENV === 'production' ? '.large-event.com' : undefined
+    })
     return successResponse(reply, { message: 'Logged out successfully' })
   })
 

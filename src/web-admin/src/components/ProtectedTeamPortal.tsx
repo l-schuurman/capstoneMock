@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getCurrentUser, clearStoredAuth, checkMainPortalAuth, AuthUser } from '../lib/auth';
+import { getCurrentUser, clearStoredAuth, checkSharedCookieAuth } from '../lib/auth';
+import { broadcastLogout } from '../lib/cross-tab-auth';
+import type { AuthUser } from '@large-event/api';
 import LocalLoginForm from './LocalLoginForm';
 
 interface ProtectedTeamPortalProps {
@@ -175,12 +177,12 @@ export default function ProtectedTeamPortal({ children }: ProtectedTeamPortalPro
         return;
       }
 
-      // If no local auth, check main portal
-      console.log('No local auth, checking main portal...');
-      const mainPortalUser = await checkMainPortalAuth();
+      // If no local auth, check shared cookie
+      console.log('No local auth, checking shared cookie...');
+      const cookieUser = await checkSharedCookieAuth();
 
-      if (mainPortalUser) {
-        setUser(mainPortalUser);
+      if (cookieUser) {
+        setUser(cookieUser);
       }
 
       setLoading(false);
@@ -256,11 +258,23 @@ export default function ProtectedTeamPortal({ children }: ProtectedTeamPortalPro
             {sessionStorage.getItem('teamd-auth-source') === 'local' ? '🚀 Local Dev' : '🌐 Main Portal'}
           </span>
         </div>
-        {sessionStorage.getItem('teamd-auth-source') === 'local' && (
+        {sessionStorage.getItem('teamd-auth-source') === 'local' ? (
           <button
-            onClick={() => {
-              clearStoredAuth();
-              window.location.reload();
+            onClick={async () => {
+              try {
+                // 1. Clear the HTTP-only cookie via API
+                await fetch('/api/auth/logout', {
+                  method: 'POST',
+                  credentials: 'include',
+                });
+              } catch (error) {
+                console.error('Logout API failed:', error);
+              } finally {
+                // 2. Clear sessionStorage
+                clearStoredAuth();
+                // 3. Reload page
+                window.location.reload();
+              }
             }}
             style={{
               backgroundColor: '#dc3545',
@@ -273,6 +287,50 @@ export default function ProtectedTeamPortal({ children }: ProtectedTeamPortalPro
             }}
           >
             Logout
+          </button>
+        ) : (
+          <button
+            onClick={async () => {
+              try {
+                // 1. Logout from server to clear shared cookie
+                await fetch('/api/auth/logout', {
+                  method: 'POST',
+                  credentials: 'include',
+                });
+              } catch (error) {
+                console.error('Logout API failed:', error);
+              } finally {
+                // 2. Broadcast logout to other tabs (main portal)
+                broadcastLogout();
+
+                // 3. Clear all local session storage
+                sessionStorage.removeItem('teamd-auth-user');
+                sessionStorage.removeItem('teamd-auth-token');
+                sessionStorage.removeItem('teamd-auth-source');
+                sessionStorage.removeItem('teamd-current-instance');
+
+                // 4. Try to close the tab (works if opened via window.open)
+                window.close();
+
+                // 5. Fallback: If tab didn't close, redirect after 100ms
+                setTimeout(() => {
+                  if (!window.closed) {
+                    window.location.replace('http://localhost:4001');
+                  }
+                }, 100);
+              }
+            }}
+            style={{
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              padding: '5px 10px',
+              borderRadius: '4px',
+              fontSize: '0.8rem',
+              cursor: 'pointer'
+            }}
+          >
+            Logout & Close
           </button>
         )}
       </div>

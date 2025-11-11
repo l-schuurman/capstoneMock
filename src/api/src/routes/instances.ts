@@ -4,13 +4,10 @@
  */
 
 import type { FastifyInstance } from 'fastify'
-import { db } from '@teamd/database'
-import {
-  instances,
-  organizations,
-  userInstanceAccess,
-} from '@teamd/database/overlays'
-import { eq, and } from 'drizzle-orm'
+// Database schemas and query functions - used for querying the database
+import { db, instances, organizations, userInstanceAccess, eq, and } from '@large-event/database'
+// API types - used for typing the response data sent to frontend
+import type { InstanceResponse, InstanceListResponse } from '@large-event/api-types'
 import { successResponse, errorResponse, notFoundResponse } from '../utils/response.js'
 import { requireAuth } from '../middleware/auth.js'
 
@@ -47,11 +44,11 @@ export default async function instanceRoutes(fastify: FastifyInstance) {
           .innerJoin(organizations, eq(instances.ownerOrganizationId, organizations.id))
           .where(eq(userInstanceAccess.userId, userId))
 
-        // Map to response format
-        const instancesList = userAccess.map((access) => ({
+        // Map to response format with explicit typing
+        const instancesList: InstanceResponse[] = userAccess.map((access) => ({
           id: access.instanceId,
           name: access.instanceName,
-          accessLevel: access.accessLevel,
+          accessLevel: access.accessLevel as InstanceResponse['accessLevel'],
           ownerOrganization: {
             id: access.ownerOrgId,
             name: access.ownerOrgName,
@@ -59,10 +56,12 @@ export default async function instanceRoutes(fastify: FastifyInstance) {
           },
         }))
 
-        return successResponse(reply, {
+        const response: InstanceListResponse = {
           instances: instancesList,
           count: instancesList.length
-        })
+        }
+
+        return successResponse(reply, response)
       } catch (error) {
         console.error('Error fetching instances:', error instanceof Error ? error.message : String(error))
         console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace')
@@ -130,18 +129,18 @@ export default async function instanceRoutes(fastify: FastifyInstance) {
           return notFoundResponse(reply, 'Instance not found')
         }
 
-        return successResponse(reply, {
-          instance: {
-            id: instance.id,
-            name: instance.name,
-            accessLevel: access.accessLevel,
-            ownerOrganization: {
-              id: instance.ownerOrgId,
-              name: instance.ownerOrgName,
-              acronym: instance.ownerOrgAcronym,
-            },
+        const instanceResponse: InstanceResponse = {
+          id: instance.id,
+          name: instance.name,
+          accessLevel: access.accessLevel as InstanceResponse['accessLevel'],
+          ownerOrganization: {
+            id: instance.ownerOrgId,
+            name: instance.ownerOrgName,
+            acronym: instance.ownerOrgAcronym,
           },
-        })
+        }
+
+        return successResponse(reply, { instance: instanceResponse })
       } catch (error) {
         console.error('Error fetching instance:', error instanceof Error ? error.message : String(error))
         console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace')

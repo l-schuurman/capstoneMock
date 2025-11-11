@@ -1,15 +1,5 @@
+import type { AuthUser, AuthToken } from '@large-event/api';
 import TeamDConfig from '../../../../teamd.config.mts';
-
-export interface AuthUser {
-  id: number;
-  email: string;
-}
-
-export interface AuthToken {
-  user: AuthUser;
-  exp: number;
-  iat: number;
-}
 
 // Simple JWT decoder for client-side (no verification, just decode)
 // Server should verify the token
@@ -110,6 +100,7 @@ export function clearStoredAuth(): void {
 
   sessionStorage.removeItem('teamd-auth-user');
   sessionStorage.removeItem('teamd-auth-token');
+  sessionStorage.removeItem('teamd-auth-source');
 }
 
 export function getCurrentUser(): AuthUser | null {
@@ -126,10 +117,11 @@ export function getCurrentUser(): AuthUser | null {
   return storedUser;
 }
 
-export async function checkMainPortalAuth(): Promise<AuthUser | null> {
+export async function checkSharedCookieAuth(): Promise<AuthUser | null> {
   try {
-    console.log('Checking main portal auth...');
-    const response = await fetch(`${TeamDConfig.webAdmin.url.local}/api/auth/token`, {
+    console.log('Checking shared cookie auth...');
+    // Check TeamD API which will validate the shared cookie
+    const response = await fetch(`${TeamDConfig.api.url.local}/api/auth/me`, {
       credentials: 'include',
       headers: {
         'Accept': 'application/json',
@@ -138,21 +130,21 @@ export async function checkMainPortalAuth(): Promise<AuthUser | null> {
 
     if (response.ok) {
       const data = await response.json();
-      console.log('Main portal auth response:', data);
+      console.log('Shared cookie auth response:', data);
 
-      if (data.user && data.token) {
-        // Store the auth info locally
-        sessionStorage.setItem('teamd-auth-user', JSON.stringify(data.user));
-        sessionStorage.setItem('teamd-auth-token', data.token);
+      if (data.success && data.data?.user) {
+        const user = data.data.user;
+        // Store the auth info locally for persistence
+        sessionStorage.setItem('teamd-auth-user', JSON.stringify(user));
         sessionStorage.setItem('teamd-auth-source', 'main');
-        console.log('Stored auth from main portal');
-        return data.user;
+        console.log('Authenticated via shared cookie');
+        return user;
       }
     } else {
-      console.log('Main portal auth failed:', response.status);
+      console.log('Shared cookie auth failed:', response.status);
     }
   } catch (error) {
-    console.log('Error checking main portal auth:', error);
+    console.log('Error checking shared cookie auth:', error);
   }
 
   return null;

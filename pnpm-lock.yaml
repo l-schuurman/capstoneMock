@@ -21,11 +21,14 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       '@large-event/api':
-        specifier: ^1.0.0
-        version: 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
+        specifier: ^1.0.1
+        version: 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
+      '@large-event/api-types':
+        specifier: ^1.0.1
+        version: 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
       '@large-event/database':
-        specifier: ^1.0.0
-        version: 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
+        specifier: ^1.0.1
+        version: 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
       '@teamd/database':
         specifier: workspace:*
         version: link:../database
@@ -64,6 +67,9 @@ importers:
         specifier: ^8.16.3
         version: 8.16.3
     devDependencies:
+      '@types/node':
+        specifier: ^24.10.0
+        version: 24.10.0
       '@types/pg':
         specifier: ^8.15.6
         version: 8.15.6
@@ -91,6 +97,12 @@ importers:
       '@fastify/cors':
         specifier: ^10.1.0
         version: 10.1.0
+      '@large-event/api':
+        specifier: ^1.0.1
+        version: 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
+      '@large-event/api-types':
+        specifier: ^1.0.1
+        version: 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
       '@tanstack/react-query':
         specifier: ^5.90.7
         version: 5.90.7(react@19.2.0)
@@ -164,6 +176,12 @@ importers:
       '@fastify/cors':
         specifier: ^10.1.0
         version: 10.1.0
+      '@large-event/api':
+        specifier: ^1.0.1
+        version: 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
+      '@large-event/api-types':
+        specifier: ^1.0.1
+        version: 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
       '@tanstack/react-query':
         specifier: ^5.90.7
         version: 5.90.7(react@19.2.0)
@@ -1057,14 +1075,17 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@large-event/api-types@1.0.0':
-    resolution: {integrity: sha512-hX4DHq/QRHwqHmn7ThaUSSVdYEd1dLP8ep13bejwZO+uo5WHkhyi23HI023nam8C1NyvP2H+d34jeCFGzTzlMA==}
+  '@large-event/api-types@1.0.1':
+    resolution: {integrity: sha512-ICcOjWmN4jtAv70+w6kJtCU42BZ8CaezD43I8qNNveDIeon+MDqiOLXdJuvl5vT80KIXLYemxmmSZS0egrx2xA==}
 
-  '@large-event/api@1.0.0':
-    resolution: {integrity: sha512-3q6hxlGD6MGaHBHZFaQTyooi5XvYo5h9nPth/qWyJFJdwAt9SzXyrdWruetaK5k25HEBY6xyocMda2+oJNJ+Cw==}
+  '@large-event/api@1.0.1':
+    resolution: {integrity: sha512-CRXWW27qjquS/oAdHOxlqNFAK3m6t1Omw6GXK8CJQLlO+HxXDaNBpcLnchF/A3ght2sRcwqKqdrUWNRdDAoe/g==}
 
   '@large-event/database@1.0.0':
     resolution: {integrity: sha512-yU3xGluNhNlOQX3WjgswVfEclyU0qBUReNzNeWvz0V8f4nRCn6e8dP19CnaXQ4P8vaRhEwfhCqUl2eJ3GSyBPg==}
+
+  '@large-event/database@1.0.1':
+    resolution: {integrity: sha512-RgdJ8TFbuHG8tBdT99VtgL7wqAkzAfnKZ1ZJhim4Fv5lHlP8gn95eKd7vtEma4ZiZ8x2vAPnFmIXywPH+5r5qA==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -3532,9 +3553,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@large-event/api-types@1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)':
+  '@large-event/api-types@1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)':
     dependencies:
-      '@large-event/database': 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
+      '@large-event/database': 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@cloudflare/workers-types'
@@ -3562,10 +3583,10 @@ snapshots:
       - sql.js
       - sqlite3
 
-  '@large-event/api@1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)':
+  '@large-event/api@1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)':
     dependencies:
-      '@large-event/api-types': 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
-      '@large-event/database': 1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
+      '@large-event/api-types': 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
+      '@large-event/database': 1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)
       drizzle-orm: 0.30.10(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
       jsonwebtoken: 9.0.2
     transitivePeerDependencies:
@@ -3597,6 +3618,37 @@ snapshots:
       - sqlite3
 
   '@large-event/database@1.0.0(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)':
+    dependencies:
+      drizzle-orm: 0.30.10(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
+      pg: 8.16.3
+    transitivePeerDependencies:
+      - '@aws-sdk/client-rds-data'
+      - '@cloudflare/workers-types'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@neondatabase/serverless'
+      - '@op-engineering/op-sqlite'
+      - '@opentelemetry/api'
+      - '@planetscale/database'
+      - '@types/better-sqlite3'
+      - '@types/pg'
+      - '@types/react'
+      - '@types/sql.js'
+      - '@vercel/postgres'
+      - '@xata.io/client'
+      - better-sqlite3
+      - bun-types
+      - expo-sqlite
+      - knex
+      - kysely
+      - mysql2
+      - pg-native
+      - postgres
+      - react
+      - sql.js
+      - sqlite3
+
+  '@large-event/database@1.0.1(@types/pg@8.15.6)(@types/react@19.2.2)(react@19.2.0)':
     dependencies:
       drizzle-orm: 0.30.10(@types/pg@8.15.6)(@types/react@19.2.2)(pg@8.16.3)(react@19.2.0)
       pg: 8.16.3

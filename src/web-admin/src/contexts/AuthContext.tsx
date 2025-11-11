@@ -96,13 +96,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.success && data.user && data.token) {
+        if (data.token) {
           sessionStorage.setItem('teamd-auth-token', data.token);
           sessionStorage.setItem('teamd-auth-source', 'local');
-          sessionStorage.setItem('teamd-auth-user', JSON.stringify(data.user));
-          setUser(data.user);
-          return true;
         }
+        setUser(data.user);
+        return true;
       }
       return false;
     } catch (error) {
@@ -115,7 +114,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',
-        credentials: 'include',
       });
     } catch (error) {
       console.error('Logout failed:', error);

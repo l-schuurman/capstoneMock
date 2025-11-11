@@ -3,28 +3,9 @@
  * Manages the current selected organization instance across the application
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import type { InstanceResponse as Instance } from '@large-event/api-types';
 import TeamDConfig from '../../../../teamd.config.mts';
-
-export interface Organization {
-  id: number;
-  name: string;
-  acronym: string | null;
-  school: string | null;
-  userAccess?: boolean;
-  adminAccess?: boolean;
-}
-
-export interface Instance {
-  id: number;
-  name: string;
-  accessLevel: string; // 'web_user' | 'web_admin' | 'both'
-  ownerOrganization: {
-    id: number;
-    name: string;
-    acronym: string | null;
-  };
-}
 
 interface InstanceContextValue {
   currentInstance: Instance | null;
@@ -51,11 +32,21 @@ export function InstanceProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setError(null);
 
+      // Get auth token from sessionStorage
+      const authToken = sessionStorage.getItem('teamd-auth-token');
+
+      const headers: Record<string, string> = {
+        'Accept': 'application/json',
+      };
+
+      // Add Authorization header if token is available
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
       const response = await fetch(`${TeamDConfig.api.url.local}/api/instances`, {
         credentials: 'include',
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {

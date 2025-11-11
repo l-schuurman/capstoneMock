@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { getCurrentUser, AuthUser } from '../lib/auth';
-import { useInstance, Instance } from '../lib/instance-context';
+import { getCurrentUser } from '../lib/auth';
+import type { AuthUser } from '@large-event/api';
+import { useInstance } from '../lib/instance-context';
+import type { InstanceResponse as Instance } from '@large-event/api-types';
 import ProtectedTeamPortal from '../components/ProtectedTeamPortal';
 
 function TeamDDashboard() {

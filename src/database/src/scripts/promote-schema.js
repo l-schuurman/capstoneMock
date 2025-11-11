@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import readline from 'readline';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 console.log('🔄 Team D Schema Promotion Tool');
 console.log('================================');
@@ -30,14 +34,14 @@ function analyzeSchema(filePath) {
 }
 
 function promptUser(question) {
-  const readline = require('readline').createInterface({
+  const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   });
 
   return new Promise((resolve) => {
-    readline.question(question, (answer) => {
-      readline.close();
+    rl.question(question, (answer) => {
+      rl.close();
       resolve(answer.toLowerCase().trim());
     });
   });
@@ -95,7 +99,9 @@ async function main() {
         const exportName = path.basename(targetPath, '.ts');
 
         if (!indexContent.includes(`export * from './${exportName}';`)) {
-          fs.appendFileSync(indexPath, `export * from './${exportName}';\n`);
+          // Ensure there's a newline before the export if file doesn't end with one
+          const prefix = indexContent.endsWith('\n') ? '' : '\n';
+          fs.appendFileSync(indexPath, `${prefix}export * from './${exportName}';\n`);
         }
 
         console.log('   🎉 Schema promoted successfully!');

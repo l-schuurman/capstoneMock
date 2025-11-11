@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AuthUser } from '../lib/auth';
+import type { AuthUser } from '@large-event/api';
 
 interface LocalLoginFormProps {
   onLoginSuccess: (user: AuthUser, token: string) => void;

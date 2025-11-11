@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AuthUser } from '../lib/auth';
+import type { AuthUser } from '@large-event/api';
 
 interface LocalLoginFormProps {
   onLoginSuccess: (user: AuthUser, token: string) => void;
@@ -30,21 +30,25 @@ export default function LocalLoginForm({ onLoginSuccess }: LocalLoginFormProps) 
         body: JSON.stringify({ email: email.trim() }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data?.user && data.data?.token) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // API wraps response in data property
+        const userData = data.data?.user || data.user;
+        const token = data.data?.token || data.token;
+
+        if (userData && token) {
           // Store auth info
-          sessionStorage.setItem('teamd-auth-user', JSON.stringify(data.data.user));
-          sessionStorage.setItem('teamd-auth-token', data.data.token);
+          sessionStorage.setItem('teamd-auth-user', JSON.stringify(userData));
+          sessionStorage.setItem('teamd-auth-token', token);
           sessionStorage.setItem('teamd-auth-source', 'local');
 
-          onLoginSuccess(data.data.user, data.data.token);
+          onLoginSuccess(userData, token);
         } else {
           setError('Invalid response from server');
         }
       } else {
-        const errorData = await response.json();
-        setError(errorData.error?.message || errorData.error || 'Login failed');
+        setError(data.error?.message || data.error || 'Login failed');
       }
     } catch (error) {
       setError('An error occurred during login. Please try again.');

@@ -2,7 +2,9 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useAuth } from '../contexts/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useState, useEffect } from 'react';
-import { useInstance, Instance } from '../lib/instance-context';
+import { useInstance } from '../lib/instance-context';
+import { broadcastLogout } from '../lib/cross-tab-auth';
+import type { InstanceResponse as Instance } from '@large-event/api-types';
 
 function HomePage() {
   const { user, logout } = useAuth();
@@ -71,7 +73,7 @@ function HomePage() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <span style={{ fontSize: '0.9rem' }}>Welcome, {user?.email}</span>
-              {isLocalAuth && (
+              {isLocalAuth ? (
                 <button
                   onClick={logout}
                   style={{
@@ -85,6 +87,50 @@ function HomePage() {
                   }}
                 >
                   Logout
+                </button>
+              ) : (
+                <button
+                  onClick={async () => {
+                    try {
+                      // 1. Logout from server to clear shared cookie
+                      await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        credentials: 'include',
+                      });
+                    } catch (error) {
+                      console.error('Logout API failed:', error);
+                    } finally {
+                      // 2. Broadcast logout to other tabs (main portal)
+                      broadcastLogout();
+
+                      // 3. Clear all local session storage
+                      sessionStorage.removeItem('teamd-auth-user');
+                      sessionStorage.removeItem('teamd-auth-token');
+                      sessionStorage.removeItem('teamd-auth-source');
+                      sessionStorage.removeItem('teamd-current-instance');
+
+                      // 4. Try to close the tab (works if opened via window.open)
+                      window.close();
+
+                      // 5. Fallback: If tab didn't close, redirect after 100ms
+                      setTimeout(() => {
+                        if (!window.closed) {
+                          window.location.replace('http://localhost:4000');
+                        }
+                      }, 100);
+                    }
+                  }}
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  Logout & Close
                 </button>
               )}
             </div>

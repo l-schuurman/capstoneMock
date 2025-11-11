@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AuthUser } from '../lib/auth';
+import type { AuthUser } from '@large-event/api';
 import LocalLoginForm from './LocalLoginForm';
 import { useAuth } from '../contexts/AuthContext';
 
