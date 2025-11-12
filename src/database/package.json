@@ -1,10 +1,13 @@
 {
   "name": "@teamd/database",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Team D database schema overlay and local extensions",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "http://localhost:4873"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -18,7 +21,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@large-event/database": "^1.0.0",
+    "@large-event/database": "^1.0.1",
     "drizzle-orm": "^0.30.10",
     "pg": "^8.16.3"
   },

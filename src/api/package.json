@@ -17,7 +17,7 @@
     "@large-event/api": "^1.0.1",
     "@large-event/api-types": "^1.0.1",
     "@large-event/database": "^1.0.1",
-    "@teamd/database": "workspace:*",
+    "@teamd/database": "1.0.1",
     "drizzle-orm": "^0.30.10",
     "fastify": "^5.6.2",
     "jsonwebtoken": "^9.0.2"
