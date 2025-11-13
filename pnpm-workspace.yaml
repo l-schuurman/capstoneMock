@@ -1,14 +1,9 @@
 packages:
-  - 'src/web-admin'
-  - 'src/web-user'
   - 'src/api'
-  - 'src/mobile'
   - 'src/api-types'
   - 'src/database'
+  - 'src/mobile'
   - 'src/mobile-components'
+  - 'src/web-admin'
   - 'src/web-components'
-  # Shared packages from parent monorepo
-  # Commented out to use Verdaccio registry instead (supports independent workflow)
-  # - '../../shared/database'
-  # - '../../shared/api-types'
-  # - '../../shared/api'
+  - 'src/web-user'
