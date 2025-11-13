@@ -10,7 +10,8 @@ import { unauthorizedResponse } from '../utils/response.js'
 export interface AuthUser {
   id: number
   email: string
-  role?: 'user' | 'admin'
+  name: string
+  isSystemAdmin: boolean
 }
 
 /**
@@ -59,7 +60,7 @@ export async function requireAdmin(request: FastifyRequest, reply: FastifyReply)
 
   // Check if user has admin role
   const user = request.user as AuthUser
-  if (user.role !== 'admin') {
+  if (!user.isSystemAdmin) {
     return reply.code(403).send({
       success: false,
       error: {

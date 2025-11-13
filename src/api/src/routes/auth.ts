@@ -7,7 +7,6 @@ import { findUserByEmail, generateToken } from '@large-event/api'
 import { db, users } from '@large-event/database'
 import { successResponse, errorResponse, unauthorizedResponse } from '../utils/response.js'
 import { requireAuth } from '../middleware/auth.js'
-import { attachRole } from '../middleware/rbac.js'
 
 export async function authRoutes(fastify: FastifyInstance) {
   /**
@@ -37,11 +36,8 @@ export async function authRoutes(fastify: FastifyInstance) {
         return errorResponse(reply, 'Account not found. Please contact an administrator.', 404, 'USER_NOT_FOUND')
       }
 
-      // Attach role based on email
-      const userWithRole = attachRole(user)
-
-      // Generate JWT token
-      const token = generateToken(userWithRole)
+      // Generate JWT token (user already has isSystemAdmin from database)
+      const token = generateToken(user)
 
       // Set HTTP-only cookie (shared across main portal and team dashboards)
       reply.setCookie('auth-token', token, {
@@ -54,7 +50,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       })
 
       return successResponse(reply, {
-        user: userWithRole,
+        user,
         token,
       })
     } catch (error) {

@@ -6,7 +6,6 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import cookie from '@fastify/cookie'
-import { corsConfig } from './config/cors.js'
 import TeamDConfig from '../../../teamd.config.mjs'
 
 // Import routes
@@ -38,7 +37,12 @@ const fastify = Fastify({
 })
 
 // Register plugins
-await fastify.register(cors, corsConfig)
+await fastify.register(cors, {
+  origin: [...TeamDConfig.cors.allowedOrigins],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+})
 await fastify.register(cookie, {
   secret: JWT_SECRET,
   parseOptions: {},
