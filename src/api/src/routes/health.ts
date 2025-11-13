@@ -5,7 +5,7 @@
 import type { FastifyInstance } from 'fastify'
 import { successResponse } from '../utils/response.js'
 
-export default async function healthRoutes(fastify: FastifyInstance) {
+export async function healthRoutes(fastify: FastifyInstance) {
   // Health check endpoint
   fastify.get('/health', async (request, reply) => {
     return successResponse(reply, {

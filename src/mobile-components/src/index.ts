@@ -2,11 +2,11 @@
  * Team D Mobile Components
  *
  * Export all public components, hooks, and utilities
- * for consumption by mobile-shell
+ * for consumption by mobile app
  */
 
 // Components
-export { default as TeamDPlaceholder } from './components/Placeholder';
+export { TeamDPlaceholder } from './components/Placeholder';
 
 // API Client
 export { teamDInstances, teamDUsers, tokenStorage } from './services/api';

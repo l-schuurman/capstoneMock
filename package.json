@@ -21,7 +21,9 @@
     "build:admin": "pnpm --filter @teamd/web-admin build",
     "build:user": "pnpm --filter @teamd/web-user build",
     "lint": "pnpm -r lint",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean",
+    "publish": "./src/publish.sh teamd all",
+    "republish": "./src/publish.sh teamd all --unpublish"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

@@ -1,19 +1,36 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { getCurrentUser } from '../lib/auth';
-import type { AuthUser } from '@large-event/api';
-import { useInstance } from '../lib/instance-context';
+import { createAuthClient } from '@large-event/api-client';
+import type { AuthUser } from '@large-event/api-types';
+import { useInstance } from '../lib/instance-provider';
 import type { InstanceResponse as Instance } from '@large-event/api-types';
-import ProtectedTeamPortal from '../components/ProtectedTeamPortal';
+import { ProtectedTeamRoute, PORTAL_CONFIGS, type SeedUser } from '@large-event/web-components';
 
-function TeamDDashboard() {
-  const [user, setUser] = useState<AuthUser | null>(null);
+const authClient = createAuthClient({
+  storagePrefix: 'teamd',
+  apiUrl: window.location.origin,
+  debug: false,
+});
+
+// Seed users for quick login
+const SEED_USERS: SeedUser[] = [
+  { email: 'admin@system.com', label: 'System Admin', badge: 'All Access' },
+  { email: 'admin@mes.dev', label: 'MES Admin', badge: 'MES Org' },
+  { email: 'admin@cfes.dev', label: 'CFES Admin', badge: 'CFES Org' },
+  { email: 'admin@cale.dev', label: 'CALE Admin', badge: 'CALE Org' },
+  { email: 'admin@fireball.dev', label: 'Fireball Admin', badge: 'Fireball Only' },
+  { email: 'admin@toga.dev', label: 'Toga Admin', badge: 'Toga Only' },
+  { email: 'admin@grad.dev', label: 'Grad Admin', badge: 'Grad Only' },
+  { email: 'admin@graffiti.dev', label: 'Graffiti Admin', badge: 'Graffiti Only' },
+  { email: 'admin@natsurvey.dev', label: 'NatSurvey Admin', badge: 'Survey Only' },
+  { email: 'admin@cale2026.dev', label: 'CALE 2026 Admin', badge: 'CALE 2026 Only' },
+  { email: 'user@mes.dev', label: 'MES User', badge: 'User Portal' },
+  { email: 'user@cfes.dev', label: 'CFES User', badge: 'User Portal' },
+  { email: 'user@cale.dev', label: 'CALE User', badge: 'User Portal' },
+];
+
+function TeamDDashboard({ user }: { user: AuthUser | null }) {
   const { instances, loading, error, currentInstance, setCurrentInstance } = useInstance();
-
-  useEffect(() => {
-    const authUser = getCurrentUser();
-    setUser(authUser);
-  }, []);
 
   // Filter instances to only show admin portal access (web_admin or both)
   const adminInstances = instances.filter(
@@ -31,64 +48,33 @@ function TeamDDashboard() {
   }, {} as Record<string, Instance[]>);
 
   return (
-    <main style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{
-        textAlign: 'center',
-        padding: '40px 20px',
-        backgroundColor: '#f5f5f5',
-        borderRadius: '8px',
-        marginBottom: '30px'
-      }}>
-        <h1 style={{
-          fontSize: '2.5rem',
-          color: '#333',
-          marginBottom: '10px'
-        }}>
+    <main className="p-5 max-w-dashboard mx-auto">
+      <div className="text-center py-10 px-5 bg-gray-100 rounded-lg mb-8">
+        <h1 className="text-4xl text-gray-700 mb-2.5">
           Hi {user?.email}
         </h1>
-        <h2 style={{
-          fontSize: '2rem',
-          color: '#555',
-          marginBottom: '20px'
-        }}>
+        <h2 className="text-3xl text-gray-600 mb-5">
           Team D - Select an Organization
         </h2>
-        <p style={{
-          fontSize: '1.1rem',
-          color: '#666'
-        }}>
+        <p className="text-lg text-gray-500">
           Choose an organization dashboard to manage
         </p>
       </div>
 
       {loading && (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+        <div className="text-center py-10 text-gray-500">
           Loading instances...
         </div>
       )}
 
       {error && (
-        <div style={{
-          backgroundColor: '#fee',
-          border: '1px solid #fcc',
-          borderRadius: '8px',
-          padding: '20px',
-          color: '#c33',
-          textAlign: 'center'
-        }}>
+        <div className="bg-error-light border border-error-border rounded-lg p-5 text-error-text text-center">
           <strong>Error:</strong> {error}
         </div>
       )}
 
       {!loading && !error && adminInstances.length === 0 && (
-        <div style={{
-          backgroundColor: '#fff3cd',
-          border: '1px solid #ffc107',
-          borderRadius: '8px',
-          padding: '20px',
-          color: '#856404',
-          textAlign: 'center'
-        }}>
+        <div className="warning-box text-center">
           <strong>No admin access available.</strong> You need admin portal access to view this page.
         </div>
       )}
@@ -96,70 +82,25 @@ function TeamDDashboard() {
       {!loading && !error && Object.keys(instancesByOrg).length > 0 && (
         <div>
           {Object.entries(instancesByOrg).map(([orgName, orgInstances]) => (
-            <div key={orgName} style={{ marginBottom: '40px' }}>
-              <h3 style={{
-                fontSize: '1.5rem',
-                color: '#495057',
-                marginBottom: '20px',
-                borderBottom: '2px solid #dee2e6',
-                paddingBottom: '10px'
-              }}>
+            <div key={orgName} className="mb-10">
+              <h3 className="text-2xl text-gray-600 mb-5 border-b-2 border-gray-300 pb-2.5">
                 {orgName}
               </h3>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: '20px'
-              }}>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
                 {orgInstances.map((instance) => (
                   <div
                     key={instance.id}
                     onClick={() => setCurrentInstance(instance)}
-                    style={{
-                      backgroundColor: '#ffffff',
-                      borderRadius: '8px',
-                      border: '2px solid #e9ecef',
-                      padding: '20px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      position: 'relative'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#6f42c1';
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(111, 66, 193, 0.15)';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#e9ecef';
-                      e.currentTarget.style.boxShadow = 'none';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
+                    className="bg-white rounded-lg border-2 border-gray-200 p-5 cursor-pointer transition-card hover:border-teamd-purple hover:shadow-card-hover hover:-translate-y-0.5"
                   >
-                    <h4 style={{
-                      margin: '0 0 10px 0',
-                      color: '#6f42c1',
-                      fontSize: '1.25rem'
-                    }}>
+                    <h4 className="m-0 mb-2.5 text-teamd-purple text-xl">
                       {instance.name}
                     </h4>
-                    <div style={{
-                      borderTop: '1px solid #e9ecef',
-                      paddingTop: '15px',
-                      marginTop: '15px'
-                    }}>
-                      <p style={{
-                        margin: '0 0 8px 0',
-                        fontSize: '0.85rem',
-                        color: '#495057',
-                        fontWeight: 'bold'
-                      }}>
+                    <div className="border-t border-gray-200 pt-4 mt-4">
+                      <p className="m-0 mb-2 text-[0.85rem] text-gray-600 font-bold">
                         Owner: {instance.ownerOrganization.acronym || instance.ownerOrganization.name}
                       </p>
-                      <p style={{
-                        margin: 0,
-                        fontSize: '0.85rem',
-                        color: '#6c757d'
-                      }}>
+                      <p className="m-0 text-[0.85rem] text-gray-500">
                         Access: {instance.accessLevel === 'both' ? 'Full Access' : instance.accessLevel === 'web_admin' ? 'Admin Portal' : 'User Portal'}
                       </p>
                     </div>
@@ -172,17 +113,7 @@ function TeamDDashboard() {
       )}
 
       {currentInstance && (
-        <div style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          backgroundColor: '#28a745',
-          color: 'white',
-          padding: '15px 20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          maxWidth: '300px'
-        }}>
+        <div className="fixed bottom-5 right-5 bg-success text-white py-4 px-5 rounded-lg shadow-card max-w-[300px]">
           <strong>Selected:</strong> {currentInstance.name}
         </div>
       )}
@@ -191,10 +122,103 @@ function TeamDDashboard() {
 }
 
 function Home() {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Check for URL-based auth or stored sessionStorage auth
+      const currentUser = authClient.getCurrentUser();
+
+      if (currentUser) {
+        setUser(currentUser);
+        // Dispatch event to trigger instance fetching
+        window.dispatchEvent(new Event('teamd-auth-changed'));
+      }
+
+      setAuthLoading(false);
+    };
+
+    checkAuth();
+
+    // Listen for storage changes (if user logs out in another tab)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'teamd-auth-user' && !e.newValue) {
+        setUser(null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    const authSource = sessionStorage.getItem('teamd-auth-source');
+    const isLocalAuth = authSource === 'local';
+
+    try {
+      // Clear HTTP-only cookie via API
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout API failed:', error);
+    } finally {
+      if (isLocalAuth) {
+        // Local auth: just clear and reload
+        authClient.clearStoredAuth();
+        window.location.reload();
+      } else {
+        // Main portal auth: notify opener tab and close
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'teamd-logout' }, '*');
+        }
+
+        // Clear all local session storage
+        sessionStorage.removeItem('teamd-auth-user');
+        sessionStorage.removeItem('teamd-auth-token');
+        sessionStorage.removeItem('teamd-auth-source');
+        sessionStorage.removeItem('teamd-current-instance');
+
+        // Try to close the tab
+        window.close();
+
+        // Fallback: redirect if tab didn't close
+        setTimeout(() => {
+          if (!window.closed) {
+            window.location.replace('http://localhost:4001');
+          }
+        }, 100);
+      }
+    }
+  };
+
   return (
-    <ProtectedTeamPortal>
-      <TeamDDashboard />
-    </ProtectedTeamPortal>
+    <ProtectedTeamRoute
+      user={user}
+      isLoading={authLoading}
+      portalConfig={PORTAL_CONFIGS.admin}
+      teamName="Team D"
+      teamDescription="Event Services - Admin Portal"
+      primaryColor="#6f42c1"
+      storagePrefix="teamd"
+      showAuthHeader
+      enableLocalLogin
+      enableQuickLogin
+      seedUsers={SEED_USERS}
+      onLogout={handleLogout}
+      onLocalLogin={(authUser, token) => {
+        console.log('Local login successful:', authUser);
+        setUser(authUser);
+        window.dispatchEvent(new Event('teamd-auth-changed'));
+      }}
+    >
+      <TeamDDashboard user={user} />
+    </ProtectedTeamRoute>
   );
 }
 

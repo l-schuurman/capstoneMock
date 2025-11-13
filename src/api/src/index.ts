@@ -10,10 +10,10 @@ import { corsConfig } from './config/cors.js'
 import TeamDConfig from '../../../teamd.config.mjs'
 
 // Import routes
-import authRoutes from './routes/auth.js'
-import healthRoutes from './routes/health.js'
-import userRoutes from './routes/users.js'
-import instanceRoutes from './routes/instances.js'
+import { authRoutes } from './routes/auth.js'
+import { healthRoutes } from './routes/health.js'
+import { userRoutes } from './routes/users.js'
+import { instanceRoutes } from './routes/instances.js'
 
 // Configuration from centralized config
 const PORT = parseInt(process.env.PORT || String(TeamDConfig.api.port))

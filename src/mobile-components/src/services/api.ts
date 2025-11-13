@@ -7,7 +7,7 @@
 import axios, { AxiosInstance } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import type { InstanceListResponse, ApiResponse } from '@large-event/api-types';
+import type { InstanceListResponse, InstanceResponse, ApiResponse } from '@large-event/api-types';
 
 // Team D API base URL
 const getApiBaseUrl = () => {
@@ -64,20 +64,27 @@ teamDApiClient.interceptors.response.use(
 );
 
 // Instances API
+// Conforms to InstanceApi interface from @large-event/api
 export const teamDInstances = {
   /**
    * Get all instances user has access to
    */
-  getAll: async (): Promise<InstanceListResponse> => {
-    const response = await teamDApiClient.get('/instances');
-    return response.data;
+  getInstances: async (): Promise<InstanceListResponse> => {
+    const response = await teamDApiClient.get<{
+      instances: InstanceResponse[];
+      count: number;
+    }>('/instances');
+    return {
+      instances: response.data.instances || [],
+      count: response.data.count || 0,
+    };
   },
 
   /**
    * Get specific instance by ID
    */
-  getById: async (id: number) => {
-    const response = await teamDApiClient.get(`/instances/${id}`);
+  getInstance: async (id: number): Promise<InstanceResponse> => {
+    const response = await teamDApiClient.get<{ instance: InstanceResponse }>(`/instances/${id}`);
     return response.data.instance;
   },
 };
@@ -107,5 +114,3 @@ export const tokenStorage = {
     await AsyncStorage.removeItem(TOKEN_KEY);
   },
 };
-
-export default teamDApiClient;

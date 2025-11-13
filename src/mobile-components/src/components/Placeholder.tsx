@@ -18,7 +18,7 @@ import type { TeamComponentProps } from '../types';
 import { teamDInstances } from '../services/api';
 import type { InstanceResponse } from '@large-event/api-types';
 
-export default function TeamDPlaceholder({ user, instances: passedInstances, token }: TeamComponentProps) {
+export function TeamDPlaceholder({ user, instances: passedInstances, token }: TeamComponentProps) {
   const [instances, setInstances] = useState<InstanceResponse[]>(passedInstances || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export default function TeamDPlaceholder({ user, instances: passedInstances, tok
     try {
       setLoading(true);
       setError(null);
-      const data = await teamDInstances.getAll();
+      const data = await teamDInstances.getInstances();
       setInstances(data.instances);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load instances');
@@ -119,7 +119,7 @@ export default function TeamDPlaceholder({ user, instances: passedInstances, tok
             🚀 Published to Verdaccio registry
           </Text>
           <Text style={styles.infoText}>
-            ✅ Consumed by mobile-shell
+            ✅ Consumed by mobile app
           </Text>
         </View>
       </View>

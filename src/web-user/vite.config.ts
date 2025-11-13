@@ -17,6 +17,13 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
+    optimizeDeps: {
+      exclude: ['react-native', '@large-event/mobile-components', '@teamd/mobile-components'],
+    },
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      'process.env.JWT_SECRET': JSON.stringify(''),
+    },
     server: {
       port: TeamDConfig.webUser.port,
       proxy: {
@@ -29,6 +36,9 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist/client',
       sourcemap: true,
+      rollupOptions: {
+        external: ['react-native'],
+      },
     },
   };
 });

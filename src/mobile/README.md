@@ -4,10 +4,10 @@ Team D's React Native mobile component package for the Large Event Platform.
 
 ## Overview
 
-This package provides reusable React Native components that integrate with the mobile-shell application. Components are built with TypeScript and designed to work seamlessly with the platform's authentication and data infrastructure.
+This package provides reusable React Native components that integrate with the mobile app. Components are built with TypeScript and designed to work seamlessly with the platform's authentication and data infrastructure.
 
 **Dual-Mode Package:**
-- **Library Mode** (`src/`): Exports React Native components for consumption by mobile-shell
+- **Library Mode** (`src/`): Exports React Native components for consumption by mobile app
 - **Standalone Mode** (`standalone/`): Complete Expo app for independent development and testing
 
 ## Package Structure
@@ -71,14 +71,14 @@ pnpm android  # Android Emulator
 - Changes appear instantly with Fast Refresh
 
 **Benefits:**
-- ✅ Faster feedback loop (no mobile-shell rebuild needed)
+- ✅ Faster feedback loop (no mobile app rebuild needed)
 - ✅ Complete isolation for Team D features
 - ✅ Full control over navigation and auth
 - ✅ Easier debugging and testing
 
-### Option 2: Library Mode (Testing Integration with Mobile-Shell)
+### Option 2: Library Mode (Testing Integration with Mobile App)
 
-Build components as a library and test them within the integrated mobile-shell application.
+Build components as a library and test them within the integrated mobile app.
 
 **Step 1: Build the Package**
 ```bash
@@ -89,15 +89,15 @@ pnpm build
 pnpm dev
 ```
 
-**Step 2: Test in Mobile Shell**
+**Step 2: Test in Mobile App**
 ```bash
 # From repository root
-cd apps/mobile-shell
+cd apps/mobile
 pnpm dev
 ```
 
 **Step 3: View Components**
-Navigate to the Team D tab in mobile-shell to see your components integrated with the full platform.
+Navigate to the Team D tab in the mobile app to see your components integrated with the full platform.
 
 **Benefits:**
 - ✅ Test components in real integration context
@@ -147,12 +147,12 @@ pnpm dev
 ### Library Mode Requirements
 
 **Required Services:**
-- ✅ **mobile-shell** (Expo app)
+- ✅ **Mobile app** (Expo app)
 - ✅ **Team D API** (port 3004) - For Team D components
-- ✅ **web-admin server** (port 4101) - For mobile-shell auth
+- ✅ **web-admin server** (port 4101) - For mobile app auth
 - ✅ **PostgreSQL** + **Redis**
 
-**Note:** Library components use Team D API (3004) directly, while mobile-shell auth uses web-admin server (4101). Both must be running for full functionality.
+**Note:** Library components use Team D API (3004) directly, while mobile app auth uses web-admin server (4101). Both must be running for full functionality.
 
 ### Platform-Specific Configuration
 
@@ -277,10 +277,10 @@ docker-compose up -d verdaccio
 pnpm teamd:mobile:publish
 ```
 
-Then install in mobile-shell:
+Then install in mobile app:
 
 ```bash
-cd apps/mobile-shell
+cd apps/mobile
 pnpm add @teamd/mobile-components@1.0.0
 ```
 
@@ -295,10 +295,10 @@ The package uses a standalone TypeScript configuration optimized for React Nativ
 
 ## Testing Components
 
-### In Mobile Shell
+### In Mobile App
 
 1. Build the package: `pnpm teamd:mobile:build`
-2. Start mobile-shell: `cd apps/mobile-shell && pnpm dev`
+2. Start mobile app: `cd apps/mobile && pnpm dev`
 3. Use Expo Go or a simulator to view changes
 
 ### Hot Reload
@@ -306,7 +306,7 @@ The package uses a standalone TypeScript configuration optimized for React Nativ
 For the best development experience:
 
 1. Run build in watch mode: `pnpm teamd:mobile:dev`
-2. Start mobile-shell in parallel: `cd apps/mobile-shell && pnpm dev`
+2. Start mobile app in parallel: `cd apps/mobile && pnpm dev`
 3. Changes to components will trigger automatic rebuilds
 
 ## Available Components
@@ -335,7 +335,7 @@ import { TeamDPlaceholder } from '@teamd/mobile-components';
 1. Create component file: `src/components/MyComponent.tsx`
 2. Export from `src/index.ts`
 3. Build: `pnpm teamd:mobile:build`
-4. Use in mobile-shell: `import { MyComponent } from '@teamd/mobile-components'`
+4. Use in mobile app: `import { MyComponent } from '@teamd/mobile-components'`
 
 ### Updating Types
 
@@ -393,7 +393,7 @@ pnpm teamd:mobile:build
 pnpm install
 ```
 
-### Type errors in mobile-shell
+### Type errors in mobile app
 
 **Solution**: Rebuild the package to regenerate .d.ts files:
 
@@ -407,7 +407,7 @@ pnpm teamd:mobile:build
 **Solution**: Restart Metro bundler with cache clear:
 
 ```bash
-cd apps/mobile-shell
+cd apps/mobile
 pnpm start -- --clear
 ```
 
@@ -431,7 +431,7 @@ When adding features to this package:
 
 ## Related Documentation
 
-- [Mobile Shell README](../../../../apps/mobile-shell/README.md)
+- [Mobile App README](../../../../apps/mobile/README.md)
 - [API Types Package](../../../../shared/api-types/README.md)
 - [Team D API Documentation](../api/README.md)
 - [Project Root Documentation](../../../../README.md)
@@ -441,7 +441,7 @@ When adding features to this package:
 For questions or issues:
 
 1. Check the [main project documentation](../../../../README.md)
-2. Review mobile-shell integration patterns
+2. Review mobile app integration patterns
 3. Consult Team D's API documentation
 4. Reach out to the platform team
 

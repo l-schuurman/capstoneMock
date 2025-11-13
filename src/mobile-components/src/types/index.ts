@@ -2,16 +2,15 @@
  * Team D Mobile Type Definitions
  */
 
-// Inline type definitions to avoid workspace dependency issues during build
-// These mirror the types from @large-event/api-types
+// NOTE: These types mirror @large-event/api-types
+// Kept inline to avoid workspace dependency resolution issues during standalone build
+// IMPORTANT: Keep these in sync with shared/api-types/src
 
 export interface AuthUser {
-  id: string;
+  id: number;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  teamId?: string;
+  name: string;  // Updated to match database schema (was firstName/lastName)
+  isSystemAdmin: boolean;
 }
 
 export interface OrganizationSummary {
@@ -30,7 +29,7 @@ export interface InstanceResponse {
 }
 
 /**
- * Props passed to Team D mobile components by mobile-shell
+ * Props passed to Team D mobile components by mobile app
  */
 export interface TeamComponentProps {
   user: AuthUser;

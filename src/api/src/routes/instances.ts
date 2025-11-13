@@ -11,7 +11,7 @@ import type { InstanceResponse, InstanceListResponse } from '@large-event/api-ty
 import { successResponse, errorResponse, notFoundResponse } from '../utils/response.js'
 import { requireAuth } from '../middleware/auth.js'
 
-export default async function instanceRoutes(fastify: FastifyInstance) {
+export async function instanceRoutes(fastify: FastifyInstance) {
   /**
    * GET /instances
    * Get all instances accessible to the current user

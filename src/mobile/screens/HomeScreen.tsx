@@ -7,9 +7,9 @@ import { TeamDPlaceholder } from '@teamd/mobile-components';
  * Home Screen - demonstrates using Team D components
  *
  * This screen imports the TeamDPlaceholder component from the published @teamd/mobile-components package,
- * showing how the standalone app can use the same components as mobile-shell
+ * showing how the standalone app can use the same components as mobile app
  */
-export default function HomeScreen() {
+export function HomeScreen() {
   const { user, token, instances } = useAuth();
 
   useEffect(() => {

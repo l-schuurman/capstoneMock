@@ -9,7 +9,7 @@ import { successResponse, errorResponse, unauthorizedResponse } from '../utils/r
 import { requireAuth } from '../middleware/auth.js'
 import { attachRole } from '../middleware/rbac.js'
 
-export default async function authRoutes(fastify: FastifyInstance) {
+export async function authRoutes(fastify: FastifyInstance) {
   /**
    * POST /auth/login
    * User login - creates user if doesn't exist (simplified auth for MVP)

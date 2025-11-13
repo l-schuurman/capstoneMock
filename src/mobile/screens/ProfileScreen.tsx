@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function ProfileScreen() {
+export function ProfileScreen() {
   const { user, instances, logout } = useAuth();
 
   const handleLogout = async () => {

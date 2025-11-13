@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm'
 import { successResponse, errorResponse, notFoundResponse } from '../utils/response.js'
 import { requireAdmin, requireAuth } from '../middleware/auth.js'
 
-export default async function userRoutes(fastify: FastifyInstance) {
+export async function userRoutes(fastify: FastifyInstance) {
   /**
    * GET /users
    * List all users (admin only)

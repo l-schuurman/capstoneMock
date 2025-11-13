@@ -38,6 +38,21 @@ const getApiUrl = () => {
 
 const API_URL = getApiUrl();
 
+// Create axios instance with response unwrapping interceptor
+const apiClient = axios.create();
+
+// Unwrap { success, data } API response format
+apiClient.interceptors.response.use(
+  (response) => {
+    // If response has { success, data } format, unwrap it
+    if (response.data?.success && 'data' in response.data) {
+      return { ...response, data: response.data.data };
+    }
+    return response;
+  },
+  (error) => Promise.reject(error)
+);
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -74,11 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('[AuthContext] Fetching user data from:', `${API_URL}/users/me`);
       // Fetch user profile
-      const userResponse = await axios.get(`${API_URL}/users/me`, {
+      const userResponse = await apiClient.get(`${API_URL}/users/me`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       console.log('[AuthContext] User response:', userResponse.data);
-      setUser(userResponse.data.data);
+      setUser(userResponse.data);
 
       // Fetch instances
       await refreshInstances();
@@ -96,9 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('[AuthContext] Attempting login to:', `${API_URL}/auth/login`);
       // Simple email-based login (no password for demo)
-      const response = await axios.post(`${API_URL}/auth/login`, { email });
+      const response = await apiClient.post(`${API_URL}/auth/login`, { email });
       console.log('[AuthContext] Login response:', response.data);
-      const { token: newToken, user: newUser } = response.data.data;
+      const { token: newToken, user: newUser } = response.data;
 
       setToken(newToken);
       setUser(newUser);
@@ -124,11 +139,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshInstances = async () => {
     try {
       console.log('[AuthContext] Fetching instances from:', `${API_URL}/instances`);
-      const response = await axios.get(`${API_URL}/instances`);
+      const response = await apiClient.get(`${API_URL}/instances`);
       console.log('[AuthContext] Instances response:', response.data);
 
       // API returns { success: true, data: { instances: [...], count: N } }
-      const instancesData = response.data.data?.instances || [];
+      const instancesData = response.data?.instances || [];
       console.log('[AuthContext] Setting instances:', instancesData.length, 'instances');
       setInstances(instancesData);
     } catch (error) {

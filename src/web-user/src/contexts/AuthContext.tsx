@@ -1,144 +1,51 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { AuthUser } from '@large-event/api';
+/**
+ * Team D Web User Auth Context
+ * Uses shared auth infrastructure from @large-event/api
+ */
 
-interface AuthContextType {
-  user: AuthUser | null;
-  login: (email: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-  isLoading: boolean;
-}
+import {
+  createAuthContext,
+  createAuthApi,
+  createAuthClient,
+  createFetchClient,
+  createTokenStorage,
+  sessionStorageAdapter,
+} from '@large-event/api-client';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Create auth client for URL token extraction
+const authClient = createAuthClient({
+  storagePrefix: 'teamd',
+  apiUrl: window.location.origin,
+  debug: false,
+});
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+// Create HTTP client for bearer auth
+const httpClient = createFetchClient({
+  baseURL: window.location.origin,
+  authType: 'bearer',
+  storage: sessionStorageAdapter,
+  tokenKey: 'teamd-auth-token',
+});
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+// Create auth API client
+const authApi = createAuthApi({
+  httpClient,
+  authType: 'bearer',
+});
 
-  const checkAuth = async () => {
-    try {
-      // First check for URL auth token (from main portal)
-      const urlParams = new URLSearchParams(window.location.search);
-      const authToken = urlParams.get('auth');
+// Create token storage
+const tokenStorage = createTokenStorage({
+  storage: sessionStorageAdapter,
+  prefix: 'teamd',
+});
 
-      if (authToken) {
-        try {
-          const payload = JSON.parse(atob(authToken.split('.')[1]));
-          if (payload.user?.email) {
-            sessionStorage.setItem('teamd-auth-token', authToken);
-            sessionStorage.setItem('teamd-auth-source', 'main');
-            setUser(payload.user);
-
-            // Clean up URL to remove auth token
-            const newUrl = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, '', newUrl);
-
-            setIsLoading(false);
-            return;
-          }
-        } catch (error) {
-          console.error('Failed to decode auth token:', error);
-        }
-      }
-
-      // Check for stored session token (only if it was from main portal or local)
-      const storedToken = sessionStorage.getItem('teamd-auth-token');
-      const authSource = sessionStorage.getItem('teamd-auth-source');
-
-      if (storedToken && authSource) {
-        try {
-          const payload = JSON.parse(atob(storedToken.split('.')[1]));
-          if (payload.user?.email && payload.exp > Date.now() / 1000) {
-            setUser(payload.user);
-            setIsLoading(false);
-            return;
-          } else {
-            // Token expired, clear storage
-            sessionStorage.removeItem('teamd-auth-token');
-            sessionStorage.removeItem('teamd-auth-source');
-          }
-        } catch (error) {
-          // Invalid token, clear storage
-          sessionStorage.removeItem('teamd-auth-token');
-          sessionStorage.removeItem('teamd-auth-source');
-        }
-      }
-
-      // If accessed directly (no URL token and no stored auth), check local Team D auth only
-      const response = await fetch('/api/auth/me');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.user) {
-          sessionStorage.setItem('teamd-auth-source', 'local');
-          setUser(data.user);
-        }
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const login = async (email: string): Promise<boolean> => {
-    try {
-      // Try local Team D login
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.user && data.token) {
-          sessionStorage.setItem('teamd-auth-token', data.token);
-          sessionStorage.setItem('teamd-auth-source', 'local');
-          sessionStorage.setItem('teamd-auth-user', JSON.stringify(data.user));
-          setUser(data.user);
-          return true;
-        }
-      }
-      return false;
-    } catch (error) {
-      console.error('Login failed:', error);
-      return false;
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      sessionStorage.removeItem('teamd-auth-token');
-      sessionStorage.removeItem('teamd-auth-source');
-      sessionStorage.removeItem('teamd-auth-user');
-      setUser(null);
-      window.location.reload();
-    }
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+// Create and export auth context
+export const { AuthProvider, useAuth } = createAuthContext({
+  authApi,
+  authClient,
+  tokenStorage,
+  onLogoutBehavior: 'reload',
+  enableInstanceManagement: false,
+  skipCookieFallback: true,
+  debug: false,
+});

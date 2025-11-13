@@ -77,50 +77,22 @@ function LoginPageContent() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      backgroundColor: '#f3f4f6',
-      padding: '20px'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '40px',
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <h1 style={{
-            fontSize: '2rem',
-            fontWeight: 'bold',
-            color: '#1f2937',
-            marginBottom: '8px'
-          }}>
+    <div className="flex justify-center items-center min-h-screen bg-bg-gray-light p-5">
+      <div className="card max-w-md rounded-xl shadow-lg">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Team D User Portal
           </h1>
-          <p style={{
-            color: '#6b7280',
-            fontSize: '1rem'
-          }}>
+          <p className="text-text-gray text-base">
             Sign in to access your dashboard
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
+          <div className="mb-5">
             <label
               htmlFor="email"
-              style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '500',
-                color: '#374151',
-                marginBottom: '8px'
-              }}
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
               Email Address
             </label>
@@ -131,27 +103,12 @@ function LoginPageContent() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '16px',
-                boxSizing: 'border-box'
-              }}
+              className="input-primary"
             />
           </div>
 
           {error && (
-            <div style={{
-              backgroundColor: '#fef2f2',
-              border: '1px solid #fecaca',
-              color: '#dc2626',
-              padding: '12px',
-              borderRadius: '6px',
-              marginBottom: '20px',
-              fontSize: '14px'
-            }}>
+            <div className="error-box">
               {error}
             </div>
           )}
@@ -159,32 +116,14 @@ function LoginPageContent() {
           <button
             type="submit"
             disabled={isLoading}
-            style={{
-              width: '100%',
-              backgroundColor: isLoading ? '#9ca3af' : '#8b5cf6',
-              color: 'white',
-              padding: '12px',
-              borderRadius: '6px',
-              border: 'none',
-              fontSize: '16px',
-              fontWeight: '500',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.2s'
-            }}
+            className="btn-primary w-full"
           >
             {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <div style={{
-          marginTop: '24px',
-          padding: '16px',
-          backgroundColor: '#f9fafb',
-          borderRadius: '6px',
-          fontSize: '14px',
-          color: '#6b7280'
-        }}>
-          <p style={{ margin: 0, textAlign: 'center' }}>
+        <div className="mt-6 p-4 bg-bg-gray-lighter rounded-md text-sm text-text-gray">
+          <p className="m-0 text-center">
             <strong>Team D User Services</strong><br />
             Large event user support and coordination
           </p>

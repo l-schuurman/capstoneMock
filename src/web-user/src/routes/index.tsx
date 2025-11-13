@@ -1,21 +1,116 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useAuth } from '../contexts/AuthContext';
-import ProtectedRoute from '../components/ProtectedRoute';
+import { ProtectedTeamRoute, PORTAL_CONFIGS, type SeedUser } from '@large-event/web-components';
 import { useState, useEffect } from 'react';
-import { useInstance } from '../lib/instance-context';
-import { broadcastLogout } from '../lib/cross-tab-auth';
-import type { InstanceResponse as Instance } from '@large-event/api-types';
+import { useInstance } from '../lib/instance-provider';
+import { createAuthClient } from '@large-event/api-client';
+import type { AuthUser, InstanceResponse as Instance } from '@large-event/api-types';
+
+const authClient = createAuthClient({
+  storagePrefix: 'teamd',
+  apiUrl: window.location.origin,
+  debug: false,
+});
+
+// Seed users for quick login
+const SEED_USERS: SeedUser[] = [
+  { email: 'admin@system.com', label: 'System Admin', badge: 'All Access' },
+  { email: 'admin@mes.dev', label: 'MES Admin', badge: 'MES Org' },
+  { email: 'admin@cfes.dev', label: 'CFES Admin', badge: 'CFES Org' },
+  { email: 'admin@cale.dev', label: 'CALE Admin', badge: 'CALE Org' },
+  { email: 'admin@fireball.dev', label: 'Fireball Admin', badge: 'Fireball Only' },
+  { email: 'admin@toga.dev', label: 'Toga Admin', badge: 'Toga Only' },
+  { email: 'admin@grad.dev', label: 'Grad Admin', badge: 'Grad Only' },
+  { email: 'admin@graffiti.dev', label: 'Graffiti Admin', badge: 'Graffiti Only' },
+  { email: 'admin@natsurvey.dev', label: 'NatSurvey Admin', badge: 'Survey Only' },
+  { email: 'admin@cale2026.dev', label: 'CALE 2026 Admin', badge: 'CALE 2026 Only' },
+  { email: 'user@mes.dev', label: 'MES User', badge: 'User Portal' },
+  { email: 'user@cfes.dev', label: 'CFES User', badge: 'User Portal' },
+  { email: 'user@cale.dev', label: 'CALE User', badge: 'User Portal' },
+];
 
 function HomePage() {
-  const { user, logout } = useAuth();
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const { instances, loading, error, currentInstance, setCurrentInstance } = useInstance();
   const [isLocalAuth, setIsLocalAuth] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Check for URL-based auth or stored sessionStorage auth
+      const currentUser = authClient.getCurrentUser();
+
+      if (currentUser) {
+        setUser(currentUser);
+        // Dispatch event to trigger instance fetching
+        window.dispatchEvent(new Event('teamd-auth-changed'));
+      }
+
+      setAuthLoading(false);
+    };
+
+    checkAuth();
+
+    // Listen for storage changes (if user logs out in another tab)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'teamd-auth-user' && !e.newValue) {
+        setUser(null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   useEffect(() => {
     // Check if user is authenticated via local auth (not main portal)
     const authSource = sessionStorage.getItem('teamd-auth-source');
     setIsLocalAuth(authSource === 'local');
   }, [user]);
+
+  const handleLogout = async () => {
+    const authSource = sessionStorage.getItem('teamd-auth-source');
+    const isLocalAuth = authSource === 'local';
+
+    try {
+      // Clear HTTP-only cookie via API
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout API failed:', error);
+    } finally {
+      if (isLocalAuth) {
+        // Local auth: just clear and reload
+        authClient.clearStoredAuth();
+        window.location.reload();
+      } else {
+        // Main portal auth: notify opener tab and close
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type: 'teamd-logout' }, '*');
+        }
+
+        // Clear all local session storage
+        sessionStorage.removeItem('teamd-auth-user');
+        sessionStorage.removeItem('teamd-auth-token');
+        sessionStorage.removeItem('teamd-auth-source');
+        sessionStorage.removeItem('teamd-current-instance');
+
+        // Try to close the tab
+        window.close();
+
+        // Fallback: redirect if tab didn't close
+        setTimeout(() => {
+          if (!window.closed) {
+            window.location.replace('http://localhost:4000');
+          }
+        }, 100);
+      }
+    }
+  };
 
   // Filter instances to only show user portal access (web_user or both)
   const userInstances = instances.filter(
@@ -33,7 +128,23 @@ function HomePage() {
   }, {} as Record<string, Instance[]>);
 
   return (
-    <ProtectedRoute>
+    <ProtectedTeamRoute
+      user={user}
+      isLoading={authLoading}
+      portalConfig={PORTAL_CONFIGS.user}
+      teamName="Team D"
+      teamDescription="Event Services - User Portal"
+      primaryColor="#8b5cf6"
+      storagePrefix="teamd"
+      enableLocalLogin
+      enableQuickLogin
+      seedUsers={SEED_USERS}
+      onLocalLogin={(authUser, token) => {
+        console.log('Local login successful:', authUser);
+        setUser(authUser);
+        window.dispatchEvent(new Event('teamd-auth-changed'));
+      }}
+    >
       <div style={{
         minHeight: '100vh',
         backgroundColor: '#f9fafb',
@@ -73,66 +184,20 @@ function HomePage() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <span style={{ fontSize: '0.9rem' }}>Welcome, {user?.email}</span>
-              {isLocalAuth ? (
-                <button
-                  onClick={logout}
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem'
-                  }}
-                >
-                  Logout
-                </button>
-              ) : (
-                <button
-                  onClick={async () => {
-                    try {
-                      // 1. Logout from server to clear shared cookie
-                      await fetch('/api/auth/logout', {
-                        method: 'POST',
-                        credentials: 'include',
-                      });
-                    } catch (error) {
-                      console.error('Logout API failed:', error);
-                    } finally {
-                      // 2. Broadcast logout to other tabs (main portal)
-                      broadcastLogout();
-
-                      // 3. Clear all local session storage
-                      sessionStorage.removeItem('teamd-auth-user');
-                      sessionStorage.removeItem('teamd-auth-token');
-                      sessionStorage.removeItem('teamd-auth-source');
-                      sessionStorage.removeItem('teamd-current-instance');
-
-                      // 4. Try to close the tab (works if opened via window.open)
-                      window.close();
-
-                      // 5. Fallback: If tab didn't close, redirect after 100ms
-                      setTimeout(() => {
-                        if (!window.closed) {
-                          window.location.replace('http://localhost:4000');
-                        }
-                      }, 100);
-                    }
-                  }}
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem'
-                  }}
-                >
-                  Logout & Close
-                </button>
-              )}
+              <button
+                onClick={handleLogout}
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem'
+                }}
+              >
+                {isLocalAuth ? 'Logout' : 'Logout & Close'}
+              </button>
             </div>
           </div>
         </header>
@@ -315,7 +380,7 @@ function HomePage() {
           </div>
         </footer>
       </div>
-    </ProtectedRoute>
+    </ProtectedTeamRoute>
   );
 }
 
