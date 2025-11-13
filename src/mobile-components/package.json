@@ -1,9 +1,8 @@
 {
   "name": "@teamd/mobile-components",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Team D React Native component library for Large Event Platform",
   "main": "dist/index.js",
-  "react-native": "src/index.ts",
   "types": "dist/index.d.ts",
   "publishConfig": {
     "registry": "http://localhost:4873"

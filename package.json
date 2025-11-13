@@ -25,7 +25,12 @@
     "publish": "./src/publish.sh teamd all",
     "republish": "./src/publish.sh teamd all --unpublish"
   },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-native": "0.74.5"
+  },
   "devDependencies": {
+    "@types/react": "~18.2.79",
     "concurrently": "^8.2.2"
   }
 }

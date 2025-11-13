@@ -30,13 +30,11 @@ export async function authRoutes(fastify: FastifyInstance) {
     }
 
     try {
-      // Find or create user (simplified for MVP - no password validation yet)
-      let user = await findUserByEmail(email)
+      // Find existing user - account must be pre-created
+      const user = await findUserByEmail(email)
 
       if (!user) {
-        // Create new user
-        const [newUser] = await db.insert(users).values({ email }).returning()
-        user = newUser
+        return errorResponse(reply, 'Account not found. Please contact an administrator.', 404, 'USER_NOT_FOUND')
       }
 
       // Attach role based on email
